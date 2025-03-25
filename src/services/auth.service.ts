@@ -18,4 +18,8 @@ export class AuthService {
   verifyOtp(email: string, otp: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/verify-otp`, { email, otp });
   }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('token'); // ✅ Check if token exists
+  }
 }
