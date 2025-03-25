@@ -1,0 +1,38 @@
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="logo">BCC - Operational</div>
+    <div class="menu-toggle" (click)="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <div class="auth-buttons" [ngClass]="{'show': isMenuOpen}">
+      <button class="btn signup-btn" [routerLink]="['/signup']">Sign Up</button>
+      <button class="btn login-btn" [routerLink]="['/login']">Login</button>
+    </div>
+</nav>
+
+<!-- Hero Section and Video Side by Side -->
+<div class="hero-video-container">
+    <div class="hero-text">
+        <h1 class="main-heading">Generate Bills easily, fast,<br> and secure.</h1>
+        <p class="sub-heading"> Experience seamless experience with the BCC website.</p>
+        <button class="cta-btn" [routerLink]="['/login']">Start Now</button>
+    </div>
+    <div class="video-container">
+        <video autoplay muted loop playsinline>
+            <source src="assets/videos/hero-homepage.mp4" type="video/mp4">
+        </video>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2025 BCC - Operational. All rights reserved.</p>
+</footer>
+
+<script>
+    function toggleMenu() {
+        document.querySelector('.auth-buttons').classList.toggle('show');
+    }
+</script>
