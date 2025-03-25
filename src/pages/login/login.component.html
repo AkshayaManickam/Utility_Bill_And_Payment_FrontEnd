@@ -1,1 +1,27 @@
-<p>login works!</p>
+<div class="login-container">
+  <div class="login-box">
+    <h2>Login</h2>
+
+    <!-- Step 1: Enter Email -->
+    <form *ngIf="!isOtpGenerated" [formGroup]="loginForm" (ngSubmit)="generateOtp()">
+      <div class="input-group">
+        <input type="email" formControlName="email" placeholder="Enter Email">
+        <span *ngIf="loginForm.controls['email'].invalid && loginForm.controls['email'].touched">
+          Invalid Email
+        </span>
+      </div>
+      <button type="submit">Generate OTP</button>
+    </form>
+
+    <!-- Step 2: Enter OTP -->
+    <form *ngIf="isOtpGenerated" [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
+      <div class="input-group">
+        <input type="text" formControlName="otp" placeholder="Enter OTP">
+        <span *ngIf="otpForm.controls['otp'].invalid && otpForm.controls['otp'].touched">
+          Enter 6-digit OTP
+        </span>
+      </div>
+      <button type="submit">Verify OTP & Login</button>
+    </form>
+  </div>
+</div>

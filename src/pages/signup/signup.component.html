@@ -1,1 +1,25 @@
-<p>signup works!</p>
+<div class="signup-container">
+    <div class="signup-box">
+      <h2>Sign Up</h2>
+      <form [formGroup]="signUpForm" (ngSubmit)="signUp()">
+        <div class="input-group">
+          <input type="text" formControlName="employee_id" placeholder="Employee ID">
+          <span *ngIf="signUpForm.controls['employee_id'].invalid && signUpForm.controls['employee_id'].touched">Required</span>
+        </div>
+        <div class="input-group">
+          <input type="text" formControlName="name" placeholder="Name">
+          <span *ngIf="signUpForm.controls['name'].invalid && signUpForm.controls['name'].touched">Minimum 3 characters</span>
+        </div>
+        <div class="input-group">
+          <input type="email" formControlName="email" placeholder="Email">
+          <span *ngIf="signUpForm.controls['email'].invalid && signUpForm.controls['email'].touched">Invalid Email</span>
+        </div>
+        <div class="input-group">
+          <input type="text" formControlName="phone" placeholder="Phone Number">
+          <span *ngIf="signUpForm.controls['phone'].invalid && signUpForm.controls['phone'].touched">Enter 10-digit phone number</span>
+        </div>
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+  </div>
+  
