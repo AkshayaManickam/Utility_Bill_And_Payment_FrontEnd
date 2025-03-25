@@ -1,1 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'ngx-toastr/toastr';/* ✅ Ensure Toastr styles are loaded */
+
+.toast-container {
+  z-index: 99999 !important; /* ✅ Ensure Toastr is on top */
+  position: fixed !important;
+}

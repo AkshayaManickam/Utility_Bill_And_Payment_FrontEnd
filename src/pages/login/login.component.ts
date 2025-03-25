@@ -1,21 +1,30 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router'; 
+import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../services/auth.service'; // Import the AuthService
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule,ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent{
+export class LoginComponent {
   loginForm: FormGroup;
   otpForm: FormGroup;
   isOtpGenerated = false;
-  generatedOtp = '';
+  email: string = '';
 
-  constructor(private fb: FormBuilder,private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private toastr: ToastrService,
+    private authService: AuthService // Inject AuthService
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
     });
@@ -26,23 +35,53 @@ export class LoginComponent{
   }
 
   generateOtp() {
+    console.log('generateOtp() function is triggered'); // ✅ Debug log
     if (this.loginForm.valid) {
-      this.generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      console.log('Generated OTP:', this.generatedOtp); // In real cases, send OTP to email
-      alert(`OTP Sent: ${this.generatedOtp}`);
-      this.isOtpGenerated = true;
+      this.email = this.loginForm.value.email;
+  
+      this.authService.generateOtp(this.email).subscribe(
+        (otpResponse) => {
+          if (otpResponse.message === "OTP Sent Successfully") {
+            this.isOtpGenerated = true;
+            
+            // ✅ Auto-fill the OTP field
+            this.otpForm.patchValue({ otp: otpResponse.otp });
+
+            this.toastr.success(`OTP has been sent! OTP: ${otpResponse.otp}`, 'Success'); // ✅ Check Toastr
+          } else {
+            this.toastr.error(otpResponse.message, 'Error');
+          }
+        },
+        (error) => {
+          this.toastr.error('Error generating OTP. Try again!', 'Error');
+        }
+      );
     } else {
-      alert('Enter a valid email');
+      this.toastr.warning('Please enter a valid email.', 'Warning');
     }
   }
 
+  
+  
+
   verifyOtp() {
-    if (this.otpForm.valid && this.otpForm.value.otp === this.generatedOtp) {
-      alert('Login Successful!');
-      console.log('User logged in successfully');
-      this.router.navigate(['/dashboard']);
+    if (this.otpForm.valid) {
+      const enteredOtp = this.otpForm.value.otp;
+      this.authService.verifyOtp(this.email, enteredOtp).subscribe(
+        (response) => {
+          if (response.valid) {
+            this.toastr.success('Login successful!', 'Success');
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.toastr.error('Invalid OTP! Try Again.', 'Error');
+          }
+        },
+        (error) => {
+          this.toastr.error('Error verifying OTP. Try again!', 'Error');
+        }
+      );
     } else {
-      alert('Invalid OTP! Try Again.');
+      this.toastr.warning('Please enter a valid 6-digit OTP.', 'Warning');
     }
   }
 }
