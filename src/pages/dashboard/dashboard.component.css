@@ -34,16 +34,13 @@ body {
     cursor: pointer;
   }
   
+  .sidebar nav ul li:hover,
   .sidebar nav ul li.active {
     background: rgb(0, 208, 255);
     border-radius: 5px;
     margin-bottom: 10px;
   }
 
-  .sidebar nav ul li:hover {
-    background: burlywood;
-    border-radius: 5px;
-  }
   
   .content {
     flex: 1;
@@ -123,7 +120,114 @@ body {
     border-radius: 8px;
   }
 
+  .manage-users-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
 
-  
-  
-  
+.top-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.search-bar {
+    width: 250px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.add-btn, .bulk-btn {
+    background-color: #001f73;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-btn:hover, .bulk-btn:hover {
+    background-color: #0033a0;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #0033a0; /* Adding a border around the table */
+}
+
+.user-table th, .user-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #0033a0; /* Adding borders to each cell */
+}
+
+.user-table th {
+    background-color: #001f73;
+    color: white;
+}
+
+.user-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0 5px;
+}
+
+.edit-btn i {
+    color: #007bff;
+}
+
+.delete-btn i {
+    color: #dc3545;
+}
+
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  background-color: #0033a0;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.pagination-controls button:hover {
+  background-color: #0033a0;
+}
+
+.pagination-controls button:disabled {
+  background-color: #d6d6d6;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-size: 14px;
+}

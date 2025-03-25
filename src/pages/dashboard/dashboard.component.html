@@ -6,10 +6,10 @@
               <li [class.active]="activeTab === 'home'" (click)="showHome()">
                   <i class="icon-home"></i> Home
               </li>
-              <li (click)="activeTab = 'users'"><i class="icon-user"></i> Manage Users</li>
-              <li (click)="activeTab = 'employees'"><i class="icon-user"></i> Manage Employees</li>
-              <li (click)="activeTab = 'invoice'"><i class="icon-invoice"></i> Generate Invoice</li>
-              <li (click)="activeTab = 'reports'"><i class="icon-report"></i> Reports</li>
+              <li [class.active]="activeTab === 'users'" (click)="activeTab = 'users'"><i class="icon-user"></i> Manage Users</li>
+              <li [class.active]="activeTab === 'employees'" (click)="activeTab = 'employees'"><i class="icon-user"></i> Manage Employees</li>
+              <li [class.active]="activeTab === 'invoice'" (click)="activeTab = 'invoice'"><i class="icon-invoice"></i> Generate Invoice</li>
+              <li [class.active]="activeTab === 'reports'" (click)="activeTab = 'reports'"><i class="icon-report"></i> Reports</li>
               <li (click)="logout()"><i class="icon-out"></i> Log out</li>
           </ul>
       </nav>
@@ -51,5 +51,52 @@
             <canvas #amountChart></canvas>
           </div>
       </section>
+
+      <div class="manage-users-container" *ngIf="activeTab === 'users'">
+        <div class="top-controls">
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Search employees..." class="search-bar" />
+          <div class="buttons">
+            <button class="add-btn" (click)="addEmployee()">Add Employee</button>
+            <button class="bulk-btn" (click)="bulkUpload()">Bulk Upload</button>
+          </div>
+        </div>
+        
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Service Connection No.</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Units Consumption</th>
+              <th>Start Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of getPaginatedUsers()">
+              <td>{{ user.customerId }}</td>
+              <td>{{ user.serviceConnectionNo }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.phone }}</td>
+              <td>{{ user.address }}</td>
+              <td>{{ user.unitsConsumption }}</td>
+              <td>{{ user.startDate }}</td>
+              <td>
+                <button class="edit-btn" (click)="editUser(user)"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" (click)="deleteUser(user)"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table><br>
+      
+        <div class="pagination-controls">
+          <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
+          <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+          <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">Next</button>
+        </div>
+      </div>           
+      
   </main>
 </div>

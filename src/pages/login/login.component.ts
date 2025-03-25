@@ -71,6 +71,7 @@ export class LoginComponent {
         (response) => {
           if (response.valid) {
             this.toastr.success('Login successful!', 'Success');
+            localStorage.setItem('isLoggedIn', 'true');
             this.router.navigate(['/dashboard']);
           } else {
             this.toastr.error('Invalid OTP! Try Again.', 'Error');
