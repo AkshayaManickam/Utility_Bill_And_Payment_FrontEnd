@@ -11,7 +11,7 @@ body {
   
   .sidebar {
     width: 250px;
-    background: #0d1b2a;
+    background: #001f73;
     color: white;
     padding: 20px;
     min-height: 100vh;
@@ -34,15 +34,21 @@ body {
     cursor: pointer;
   }
   
-  .sidebar nav ul li:hover,
   .sidebar nav ul li.active {
-    background: #1b263b;
+    background: rgb(0, 208, 255);
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  .sidebar nav ul li:hover {
+    background: burlywood;
     border-radius: 5px;
   }
   
   .content {
     flex: 1;
     padding: 20px;
+    min-height: 100vh;
   }
   
   .topbar {
@@ -51,7 +57,12 @@ body {
     align-items: center;
     padding: 15px;
     background: white;
+    color:#001f73;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .topbar a{
+    text-decoration: none;
   }
   
   .reports h2 {
@@ -60,7 +71,7 @@ body {
   
   .summary {
     display: flex;
-    gap: 15px;
+    gap: 35px;
   }
   
   .summary .card {
@@ -69,7 +80,7 @@ body {
     padding: 15px;
     text-align: center;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px #001f73;
   }
   
   .kpi {
@@ -84,14 +95,35 @@ body {
     padding: 15px;
     text-align: center;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px #001f73;
   }
   
-  .chart {
+
+  .chart-container {
+    width: 60%;  /* Adjust the width as needed */
+    max-width: 900px;  /* Prevent it from getting too large */
+    height: 700px; 
+    text-align: center;
     margin-top: 20px;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
+  
+  .chart-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  select, button {
+    padding: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    border-color: none;
+    background-color:#001f73 ;
+    color: white;
+    border-radius: 8px;
+  }
+
+
+  
+  
   

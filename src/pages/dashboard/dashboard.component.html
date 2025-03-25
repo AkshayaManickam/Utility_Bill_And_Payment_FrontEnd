@@ -1,57 +1,55 @@
 <div class="dashboard">
-    <aside class="sidebar">
-      <div class="logo">C</div>
+  <aside class="sidebar">
+      <div class="logo">BCC - Ops</div>
       <nav>
-        <ul>
-          <li class="active"><i class="icon-home"></i> Home</li>
-          <li><i class="icon-cart"></i> Orders</li>
-          <li><i class="icon-settings"></i> Settings</li>
-          <li><i class="icon-theme"></i> Theme</li>
-          <li><i class="icon-icons"></i> Icons</li>
-          <li><i class="icon-error"></i> Error</li>
-        </ul>
+          <ul>
+              <li [class.active]="activeTab === 'home'" (click)="showHome()">
+                  <i class="icon-home"></i> Home
+              </li>
+              <li (click)="activeTab = 'users'"><i class="icon-user"></i> Manage Users</li>
+              <li (click)="activeTab = 'employees'"><i class="icon-user"></i> Manage Employees</li>
+              <li (click)="activeTab = 'invoice'"><i class="icon-invoice"></i> Generate Invoice</li>
+              <li (click)="activeTab = 'reports'"><i class="icon-report"></i> Reports</li>
+              <li (click)="logout()"><i class="icon-out"></i> Log out</li>
+          </ul>
       </nav>
-    </aside>
-  
-    <main class="content">
-      <header class="topbar">
-        <a href="#" class="pro-version">See Pro Version</a>
-        <div class="profile-icon"></div>
-      </header>
-  
-      <section class="reports">
-        <h2>Reports</h2>
-        <div class="summary">
-          <div class="card">
-            <div class="icon order-icon"></div>
-            <p>ORDERS</p>
-            <h3>5610</h3>
+  </aside>
+
+  <main class="content">
+      <header class="topbar">       
+          <a href="#" class="pro-version" style="color:#001f73;">BCC Operational Official Home page</a>
+          <div class="profile-icon"></div>
+      </header><br>
+
+      <section *ngIf="activeTab === 'home'">
+          <h2 style="color:#001f73;">Today's Update</h2><br>
+          <div class="summary">
+              <div class="card">
+                  <p>Number of Users</p>
+                  <h3>{{ homeData.users }}</h3>
+              </div>
+              <div class="card">
+                  <p>Total Bills Generated Today</p>
+                  <h3>{{ homeData.bills }}</h3>
+              </div>
+              <div class="card">
+                  <p>Amount Received Today</p>
+                  <h3>₹{{ homeData.amountReceived }}</h3>
+              </div>
+          </div><br>
+
+          <h3 style="color:#001f73;">Visualize the Rate</h3>
+          <div class="chart-container">
+            <div class="chart-controls">
+              <select [(ngModel)]="selectedMetric" (change)="updateChart()">
+                <option value="amountReceived">Amount Received</option>
+                <option value="transactionRate">Rate of Transaction</option>
+                <option value="billsGenerated">No. of Bills Generated</option>
+              </select>
+              <button *ngIf="isChartGenerated" (click)="downloadChart()">Download</button>
+            </div>          
+            <canvas #amountChart></canvas>
           </div>
-          <div class="card">
-            <div class="icon product-icon"></div>
-            <p>PRODUCTS</p>
-            <h3>23</h3>
-          </div>
-          <div class="card">
-            <div class="icon transaction-icon"></div>
-            <p>TRANSACTIONS</p>
-            <h3>1942</h3>
-          </div>
-        </div>
-  
-        <h3>Key Performance Indicators</h3>
-        <div class="kpi">
-          <div class="card">REVENUE <h3>$4,800.00</h3></div>
-          <div class="card">NET <h3>$4,900.24</h3></div>
-          <div class="card">PENDING ORDERS <h3>$1,600.50</h3></div>
-          <div class="card">DUE <h3>$6,900.10</h3></div>
-          <div class="card">OVERDUE <h3>$6,500.80</h3></div>
-        </div>
-  
-        <div class="chart">
-          <canvas id="dashboardChart"></canvas>
-        </div>
       </section>
-    </main>
-  </div>
-  
+  </main>
+</div>
