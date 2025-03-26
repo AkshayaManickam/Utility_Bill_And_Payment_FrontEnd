@@ -54,12 +54,64 @@
 
       <div class="manage-users-container" *ngIf="activeTab === 'users'">
         <div class="top-controls">
-          <input type="text" [(ngModel)]="searchQuery" placeholder="Search employees..." class="search-bar" />
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Search customers..." class="search-bar" />
           <div class="buttons">
-            <button class="add-btn" (click)="addEmployee()">Add Employee</button>
-            <button class="bulk-btn" (click)="bulkUpload()">Bulk Upload</button>
+            <button class="add-btn" (click)="openAddCustomerModal()">Add Customer</button>
+            <button class="bulk-btn" (click)="openBulkUploadModal()">Bulk Upload</button>
+          </div>
+        </div><br>
+
+        <div *ngIf="showAddCustomerModal" class="popup-overlay">
+          <div class="popup-box">
+            <h4>Add Customer</h4>
+        
+            <div class="form-grid">
+              <div class="form-column">
+                <label>Customer ID</label>
+                <input [(ngModel)]="newCustomer.customerId" class="form-control" required>
+                <br>
+                <label>Service Connection No</label>
+                <input [(ngModel)]="newCustomer.serviceConnectionNo" class="form-control" required>
+                <br>
+              </div>
+        
+              <div class="form-column">
+                <label>Email</label>
+                <input [(ngModel)]="newCustomer.email" type="email" class="form-control" required>
+                <br>
+                <label>Phone</label>
+                <input [(ngModel)]="newCustomer.phone" type="tel" class="form-control" required>
+                <br>
+              </div>
+            </div>
+        
+            <label>Address</label>
+            <textarea [(ngModel)]="newCustomer.address" class="form-control" required></textarea>
+            <br>
+            <label>Start Date</label>
+            <input [(ngModel)]="newCustomer.startDate" type="date" class="form-control" required>
+            <br>
+            <!-- Buttons -->
+            <div class="form-button">
+              <button class="btn save-btn" (click)="saveCustomer()">Save</button>
+              <button class="btn cancel-btn" (click)="closeAddCustomerModal()">Cancel</button>
+            </div>
           </div>
         </div>
+
+        <div *ngIf="showBulkUploadModal" class="bulk-modal-overlay">
+          <div class="bulk-modal-box">
+            <h4>Upload Customers in Bulk</h4>
+        
+            <label for="bulkFileUpload" class="bulk-label">Select CSV File</label>
+            <input id="bulkFileUpload" type="file" (change)="handleFileInput($event)" accept=".csv" class="bulk-input-file">
+        
+            <div class="bulk-modal-buttons">
+              <button class="bulk-btn upload-bulk-btn" (click)="bulkUpload()">Upload</button>
+              <button class="bulk-btn cancel-bulk-btn" (click)="closeBulkUploadModal()">Cancel</button>
+            </div>
+          </div>
+        </div>        
         
         <table class="user-table">
           <thead>
