@@ -276,6 +276,56 @@ body {
   gap: 10px;
 }
 
+.form-grid1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers everything horizontally */
+  justify-content: center; /* Centers content vertically */
+  padding: 20px;
+  width: 100%;
+  max-width: 400px; /* Adjust as needed */
+  margin: auto;
+}
+
+.form-column1 {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center-align all elements */
+}
+
+.form-column1 label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+  text-align: center;
+  width: 100%;
+}
+
+.form-column1 input {
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s ease-in-out;
+  width: 90%; /* Ensures input is not too wide */
+  max-width: 300px; /* Restricts max width for uniformity */
+  text-align: center;
+}
+
+.form-column1 input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .form-grid1 {
+      max-width: 500px; /* Slightly wider on larger screens */
+  }
+}
+
+
 .form-control {
   width: 100%;
   padding: 8px;

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Chart } from 'chart.js/auto';
 import { UserService } from '../../services/user.service';
 import { ToastrService } from 'ngx-toastr';
+import { EmployeeService } from '../../services/employee.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +22,7 @@ export class DashboardComponent implements AfterViewInit  {
 
   hourlyData = [100, 200, 150, 300, 250, 180, 220, 170, 90, 110, 200, 310]; // Sample hourly earnings data
 
-  constructor(private userService: UserService,private toastr: ToastrService,) {}
+  constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService) {}
 
   showHome() {
     this.activeTab = 'home';
@@ -87,19 +88,31 @@ export class DashboardComponent implements AfterViewInit  {
     a.click();
   }
   users: any[] = [];
+  employees: any[] = [];
   searchQuery: string = '';
   currentPage: number = 0;
   pageSize: number = 5;
+
+  searchQuery1: string = '';
+  currentPage1: number = 0;
+  pageSize1: number = 5;
 
 
 
   ngOnInit() {
     this.fetchUsers();
+    this.fetchEmployees();
   }
 
   fetchUsers() {
     this.userService.getUsers().subscribe(data => {
       this.users = data;
+    });
+  }
+
+  fetchEmployees() {
+    this.employeeService.getEmployees().subscribe(data => {
+      this.employees = data;
     });
   }
 
@@ -116,6 +129,15 @@ export class DashboardComponent implements AfterViewInit  {
     );
   }
 
+  filteredEmployees() {
+    return this.employees.filter(employees =>
+      employees.employeeId.toLowerCase().includes(this.searchQuery1.toLowerCase()) ||
+      employees.name.toLowerCase().includes(this.searchQuery1.toLowerCase()) ||
+      employees.email.toLowerCase().includes(this.searchQuery1.toLowerCase()) ||
+      employees.phone.includes(this.searchQuery1)
+    );
+  }
+
   getPaginatedUsers() {
     const filtered = this.filteredUsers();
     const startIndex = this.currentPage * this.pageSize;
@@ -128,8 +150,25 @@ export class DashboardComponent implements AfterViewInit  {
     }
   }
 
+  changePage1(page: number) {
+    if (page >= 0 && page < this.totalPages1) {
+      this.currentPage1 = page;
+    }
+  }
+
+  getPaginatedEmployees() {
+    const filtered = this.filteredEmployees();
+    const startIndex = this.currentPage1 * this.pageSize1;
+    return filtered.slice(startIndex, startIndex + this.pageSize1);
+  }
+
+
   get totalPages() {
     return Math.ceil(this.filteredUsers().length / this.pageSize);
+  }
+
+  get totalPages1() {
+    return Math.ceil(this.filteredEmployees().length / this.pageSize1);
   }
 
   showAddCustomerModal: boolean = false;
@@ -175,6 +214,47 @@ export class DashboardComponent implements AfterViewInit  {
     };
   }
 
+
+  showAddEmployeeModal: boolean = false;
+  newEmployee: any = {
+    employeeId: '',
+    name: '',
+    email: '',
+    phone: '',
+  };
+
+  openAddEmployeeModal() {
+    this.showAddEmployeeModal = true;
+  }
+
+  closeAddEmployeeModal() {
+    console.log(3);
+    this.showAddEmployeeModal = false;
+    console.log(4);
+  }
+
+  saveEmployee() {
+    console.log(this.newEmployee);
+    this.employeeService.addEmployee(this.newEmployee).subscribe(
+      response => {
+        this.fetchEmployees();
+        this.toastr.success('Employee added successfully!', 'Success');
+        console.log(1);
+        this.closeAddEmployeeModal();
+        console.log(2);
+      },
+      error => {
+        this.toastr.error('Error adding Employee!', 'Error');
+      }
+    );
+    this.newEmployee= {
+      employeeId: '',
+      name: '',
+      email: '',
+      phone: '',
+    };
+  }
+
   showBulkUploadModal = false;
   selectedFile: File | null = null;
 
@@ -197,33 +277,31 @@ export class DashboardComponent implements AfterViewInit  {
       return;
     }
   
-    // Actual check
     const fileName = this.selectedFile.name.toLowerCase();
     if (!fileName.endsWith(".csv")) {
-      console.log("Invalid file type detected!"); // Debugging
+      console.log("Invalid file type detected!");
       this.toastr.error("Invalid file type! Please upload a CSV file.", "Error");
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("file", this.selectedFile);
-
+    console.log("Uploading file:", this.selectedFile.name); // ✅ Debugging
+  
     this.userService.uploadCustomers(formData).subscribe(
       (response: any) => {
-        if (response.message.includes("skipped")) {
-          this.toastr.warning(response.message, "Error in Data Sent");
-        } else {
-          this.fetchUsers();
-          this.toastr.success(response.message, "Success");
-        }
+        console.log("Upload Success:", response); // ✅ Debugging
+        this.toastr.success(response.message, "Success");
+        this.fetchUsers();
         this.closeBulkUploadModal();
       },
       (error: any) => {
-        const errorMessage = error.error?.message || "Error uploading file!";
-        this.toastr.error(errorMessage, "Error");
+        console.error("Upload Error:", error); // ✅ Debugging
+        this.toastr.error(error.error?.message || "Error uploading file!", "Error");
       }
-    );      
+    );
   }
+  
 
   customers: any[] = [];
   showEditCustomerModal: boolean = false;
@@ -237,7 +315,7 @@ export class DashboardComponent implements AfterViewInit  {
   
     // Update Employee
     updateCustomer() {
-      this.userService.updateEmployee(this.selectedCustomer).subscribe(
+      this.userService.updateUser(this.selectedCustomer).subscribe(
         (response) => {
           this.toastr.success("Employee updated successfully!");
           this.fetchUsers(); 
@@ -253,12 +331,52 @@ export class DashboardComponent implements AfterViewInit  {
       this.showEditCustomerModal = false;
     }
 
+    editedemployees: any[] = [];
+    showEditEmployeeModal: boolean = false;
+    selectedEmployee: any = {};
+  
+    editEmployee(employee: any) {
+      this.selectedEmployee = { ...employee }; 
+      this.showEditEmployeeModal = true;
+    }
+  
+    updateEmployee() {
+      this.employeeService.updateEmployee(this.selectedEmployee).subscribe(
+        (response) => {
+          this.toastr.success("Employee updated successfully!");
+          this.fetchEmployees(); 
+          this.showEditEmployeeModal = false;
+        },
+        (error) => {
+          this.toastr.error("Failed to update employee.");
+        }
+      );
+    }
+  
+    closeEditEmployeeModal() {
+      this.showEditEmployeeModal = false;
+    }
+
     deleteUser(user: any): void {
       if (confirm(`Are you sure you want to delete ${user.name}?`)) {
         this.userService.deleteUser(user.id).subscribe(
           () => {
             this.toastr.success('User deleted successfully!', 'Success');
             this.fetchUsers(); 
+          },
+          error => {
+            this.toastr.error('Error deleting user!', 'Error');
+          }
+        );
+      }
+    }
+
+    deleteEmployee(employee: any): void {
+      if (confirm(`Are you sure you want to delete ${employee.name}?`)) {
+        this.employeeService.deleteEmployee(employee.id).subscribe(
+          () => {
+            this.toastr.success('User deleted successfully!', 'Success');
+            this.fetchEmployees(); 
           },
           error => {
             this.toastr.error('Error deleting user!', 'Error');

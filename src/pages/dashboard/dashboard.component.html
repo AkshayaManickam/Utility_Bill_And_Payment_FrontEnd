@@ -197,7 +197,110 @@
           <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
           <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">Next</button>
         </div>
-      </div>           
+      </div>
+      
+      
+      <div class="manage-users-container" *ngIf="activeTab === 'employees'">
+        <div class="top-controls">
+          <input type="text" [(ngModel)]="searchQuery1" placeholder="Search Employees..." class="search-bar" />
+          <div class="buttons">
+            <button class="add-btn" (click)="openAddEmployeeModal()">Add Employee</button>
+          </div>
+        </div><br>
+
+        <div *ngIf="showAddEmployeeModal" class="popup-overlay">
+          <div class="popup-box">
+            <h4>Add Employee</h4>
+        
+            <!-- Two-column layout -->
+            <div class="form-grid1">
+              <!-- Left Column -->
+              <div class="form-column1">
+                <label>Employee ID</label>
+                <input [(ngModel)]="newEmployee.employeeId" class="form-control" required>
+
+                <label>Name</label>
+                <input [(ngModel)]="newEmployee.name" class="form-control" required>  
+        
+                <label>Phone</label>
+                <input [(ngModel)]="newEmployee.phone" type="tel" class="form-control" required>
+
+                <label>Email</label>
+                <input [(ngModel)]="newEmployee.email" type="email" class="form-control" required>
+          
+              </div>
+            </div>
+        
+            <!-- Buttons -->
+            <div class="form-button">
+              <button class="btn cancel-btn" (click)="closeAddEmployeeModal()">Cancel</button>
+              <button class="btn save-btn" (click)="saveEmployee()">Save</button>
+            </div>
+          </div>
+        </div>
+         
+          <!-- Edit Employee Modal -->
+        <div *ngIf="showEditEmployeeModal" class="popup-overlay">
+          <div class="popup-box">
+            <h4>Edit Employee</h4>
+
+            <div class="form-grid1">
+              <!-- Left Column -->
+              <div class="form-column1">
+                <label>Employee ID</label>
+                <input [(ngModel)]="selectedEmployee.id" class="form-control" readonly>
+
+                <label>Name</label>
+                <input [(ngModel)]="selectedEmployee.name" class="form-control" required>
+
+                <label>Email</label>
+                <input [(ngModel)]="selectedEmployee.email" type="email" class="form-control" required>
+
+                <label>Phone</label>
+                <input [(ngModel)]="selectedEmployee.phone" type="tel" class="form-control" required>
+              </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-button">
+              <button class="btn cancel-btn" (click)="closeEditEmployeeModal()">Cancel</button>
+              <button class="btn update-btn" (click)="updateEmployee()">Update</button>
+            </div>
+          </div>
+        </div>
+
+        
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>Employee ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let employees of getPaginatedEmployees()">
+              <td>{{ employees.employeeId }}</td>
+              <td>{{ employees.name }}</td>
+              <td>{{ employees.email }}</td>
+              <td>{{ employees.phone }}</td>
+              <td>
+                <button class="edit-btn" (click)="editEmployee(employees)"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" (click)="deleteEmployee(employees)"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table><br>
+      
+        <div class="pagination-controls">
+          <button (click)="changePage1(currentPage1 - 1)" [disabled]="currentPage1 === 0">Previous</button>
+          <span>Page {{ currentPage1 + 1 }} of {{ totalPages1 }}</span>
+          <button (click)="changePage1(currentPage1 + 1)" [disabled]="currentPage1 === totalPages1 - 1">Next</button>
+        </div>
+      </div> 
       
   </main>
 </div>
