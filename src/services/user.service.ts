@@ -21,4 +21,12 @@ export class UserService {
   uploadCustomers(file: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/bulk-upload`, file);
   }
+
+  updateEmployee(employee: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${employee.id}`, employee);
+  }
+
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

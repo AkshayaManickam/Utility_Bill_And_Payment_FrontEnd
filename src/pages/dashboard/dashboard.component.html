@@ -65,39 +65,46 @@
           <div class="popup-box">
             <h4>Add Customer</h4>
         
+            <!-- Two-column layout -->
             <div class="form-grid">
+              <!-- Left Column -->
               <div class="form-column">
                 <label>Customer ID</label>
                 <input [(ngModel)]="newCustomer.customerId" class="form-control" required>
-                <br>
+
+                <label>Name</label>
+                <input [(ngModel)]="newCustomer.name" class="form-control" required>  
+        
                 <label>Service Connection No</label>
                 <input [(ngModel)]="newCustomer.serviceConnectionNo" class="form-control" required>
-                <br>
-              </div>
         
-              <div class="form-column">
                 <label>Email</label>
                 <input [(ngModel)]="newCustomer.email" type="email" class="form-control" required>
-                <br>
+        
+                
+              </div>
+        
+              <!-- Right Column -->
+              <div class="form-column">
                 <label>Phone</label>
                 <input [(ngModel)]="newCustomer.phone" type="tel" class="form-control" required>
-                <br>
+
+                <label>Address</label>
+                <textarea [(ngModel)]="newCustomer.address" class="form-control" required></textarea>
+        
+                <label>Start Date</label>
+                <input [(ngModel)]="newCustomer.startDate" type="date" class="form-control" required>
               </div>
             </div>
         
-            <label>Address</label>
-            <textarea [(ngModel)]="newCustomer.address" class="form-control" required></textarea>
-            <br>
-            <label>Start Date</label>
-            <input [(ngModel)]="newCustomer.startDate" type="date" class="form-control" required>
-            <br>
             <!-- Buttons -->
             <div class="form-button">
-              <button class="btn save-btn" (click)="saveCustomer()">Save</button>
               <button class="btn cancel-btn" (click)="closeAddCustomerModal()">Cancel</button>
+              <button class="btn save-btn" (click)="saveCustomer()">Save</button>
             </div>
           </div>
         </div>
+        
 
         <div *ngIf="showBulkUploadModal" class="bulk-modal-overlay">
           <div class="bulk-modal-box">
@@ -111,17 +118,58 @@
               <button class="bulk-btn cancel-bulk-btn" (click)="closeBulkUploadModal()">Cancel</button>
             </div>
           </div>
-        </div>        
+        </div>   
+        
+          <!-- Edit Employee Modal -->
+        <div *ngIf="showEditCustomerModal" class="popup-overlay">
+          <div class="popup-box">
+            <h4>Edit Customer</h4>
+
+            <div class="form-grid">
+              <!-- Left Column -->
+              <div class="form-column">
+                <label>Customer ID</label>
+                <input [(ngModel)]="selectedCustomer.id" class="form-control" readonly>
+
+                <label>Name</label>
+                <input [(ngModel)]="selectedCustomer.name" class="form-control" required>
+
+                <label>Email</label>
+                <input [(ngModel)]="selectedCustomer.email" type="email" class="form-control" required>
+
+                <label>Phone</label>
+                <input [(ngModel)]="selectedCustomer.phone" type="tel" class="form-control" required>
+              </div>
+
+              <!-- Right Column -->
+              <div class="form-column">
+                <label>Address</label>
+                <input [(ngModel)]="selectedCustomer.address" class="form-control" readonly>
+
+                <label>Start Date</label>
+                <input [(ngModel)]="selectedCustomer.startDate" type="date" class="form-control" readonly>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-button">
+              <button class="btn cancel-btn" (click)="closeEditCustomerModal()">Cancel</button>
+              <button class="btn update-btn" (click)="updateCustomer()">Update</button>
+            </div>
+          </div>
+        </div>
+
         
         <table class="user-table">
           <thead>
             <tr>
               <th>Customer ID</th>
-              <th>Service Connection No.</th>
+              <th>Service Conn No.</th>
+              <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
               <th>Address</th>
-              <th>Units Consumption</th>
+              <th>Units</th>
               <th>Start Date</th>
               <th>Action</th>
             </tr>
@@ -130,6 +178,7 @@
             <tr *ngFor="let user of getPaginatedUsers()">
               <td>{{ user.customerId }}</td>
               <td>{{ user.serviceConnectionNo }}</td>
+              <td>{{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user.phone }}</td>
               <td>{{ user.address }}</td>

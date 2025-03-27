@@ -107,6 +107,7 @@ export class DashboardComponent implements AfterViewInit  {
     return this.users.filter(user =>
       user.customerId.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
       user.serviceConnectionNo.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+      user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
       user.phone.includes(this.searchQuery) ||
       user.address.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
@@ -135,11 +136,12 @@ export class DashboardComponent implements AfterViewInit  {
   newCustomer: any = {
     customerId: '',
     serviceConnectionNo: '',
+    name: '',
     email: '',
     phone: '',
     address: '',
     startDate: '',
-    unitsConsumption: 0 // Default to 0
+    unitsConsumption: 0 
   };
 
   openAddCustomerModal() {
@@ -161,6 +163,16 @@ export class DashboardComponent implements AfterViewInit  {
         this.toastr.error('Error adding customer!', 'Error');
       }
     );
+    this.newCustomer= {
+      customerId: '',
+      serviceConnectionNo: '',
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      startDate: '',
+      unitsConsumption: 0 
+    };
   }
 
   showBulkUploadModal = false;
@@ -184,6 +196,14 @@ export class DashboardComponent implements AfterViewInit  {
       this.toastr.warning("Please select a CSV file!", "Warning");
       return;
     }
+  
+    // Actual check
+    const fileName = this.selectedFile.name.toLowerCase();
+    if (!fileName.endsWith(".csv")) {
+      console.log("Invalid file type detected!"); // Debugging
+      this.toastr.error("Invalid file type! Please upload a CSV file.", "Error");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", this.selectedFile);
@@ -191,7 +211,7 @@ export class DashboardComponent implements AfterViewInit  {
     this.userService.uploadCustomers(formData).subscribe(
       (response: any) => {
         if (response.message.includes("skipped")) {
-          this.toastr.warning(response.message, "Partial Success");
+          this.toastr.warning(response.message, "Error in Data Sent");
         } else {
           this.fetchUsers();
           this.toastr.success(response.message, "Success");
@@ -199,21 +219,51 @@ export class DashboardComponent implements AfterViewInit  {
         this.closeBulkUploadModal();
       },
       (error: any) => {
-        // ✅ Check if backend returned a JSON response with a message
         const errorMessage = error.error?.message || "Error uploading file!";
         this.toastr.error(errorMessage, "Error");
       }
     );      
   }
 
-  editUser(user: any) {
-    alert(`Editing: ${user.name}`);
-  }
-
-  deleteUser(user: any) {
-    const confirmDelete = confirm(`Are you sure you want to delete ${user.name}?`);
-    if (confirmDelete) {
-      this.users = this.users.filter(u => u !== user);
+  customers: any[] = [];
+  showEditCustomerModal: boolean = false;
+  selectedCustomer: any = {};
+  
+    // Open Edit Modal
+    editUser(customer: any) {
+      this.selectedCustomer = { ...customer }; // Clone object
+      this.showEditCustomerModal = true;
     }
-  }
+  
+    // Update Employee
+    updateCustomer() {
+      this.userService.updateEmployee(this.selectedCustomer).subscribe(
+        (response) => {
+          this.toastr.success("Employee updated successfully!");
+          this.fetchUsers(); 
+          this.showEditCustomerModal = false;
+        },
+        (error) => {
+          this.toastr.error("Failed to update employee.");
+        }
+      );
+    }
+  
+    closeEditCustomerModal() {
+      this.showEditCustomerModal = false;
+    }
+
+    deleteUser(user: any): void {
+      if (confirm(`Are you sure you want to delete ${user.name}?`)) {
+        this.userService.deleteUser(user.id).subscribe(
+          () => {
+            this.toastr.success('User deleted successfully!', 'Success');
+            this.fetchUsers(); 
+          },
+          error => {
+            this.toastr.error('Error deleting user!', 'Error');
+          }
+        );
+      }
+    }
 }

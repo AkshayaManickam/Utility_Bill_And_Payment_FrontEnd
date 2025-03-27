@@ -35,7 +35,7 @@ export class LoginComponent {
   }
 
   generateOtp() {
-    console.log('generateOtp() function is triggered'); // ✅ Debug log
+    console.log('generateOtp() function is triggered'); 
     if (this.loginForm.valid) {
       this.email = this.loginForm.value.email;
   
@@ -43,11 +43,9 @@ export class LoginComponent {
         (otpResponse) => {
           if (otpResponse.message === "OTP Sent Successfully") {
             this.isOtpGenerated = true;
-            
-            // ✅ Auto-fill the OTP field
             this.otpForm.patchValue({ otp: otpResponse.otp });
 
-            this.toastr.success(`OTP has been sent! OTP: ${otpResponse.otp}`, 'Success'); // ✅ Check Toastr
+            this.toastr.success(`OTP has been sent! OTP: ${otpResponse.otp}`, 'Success'); 
           } else {
             this.toastr.error(otpResponse.message, 'Error');
           }
@@ -60,10 +58,6 @@ export class LoginComponent {
       this.toastr.warning('Please enter a valid email.', 'Warning');
     }
   }
-
-  
-  
-
   verifyOtp() {
     if (this.otpForm.valid) {
       const enteredOtp = this.otpForm.value.otp;

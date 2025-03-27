@@ -249,30 +249,36 @@ body {
 .popup-box {
   background: #fff;
   padding: 20px;
-  width: 400px;
+  width: 500px; /* Increased width for better layout */
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.3s ease-in-out;
 }
 
+/* Modal Header */
 .popup-box h4 {
   margin-top: 0;
   font-size: 20px;
   text-align: center;
 }
 
-/* Form Fields */
+/* Two-Column Layout */
 .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  gap: 15px;
+}
+
+/* Form Fields */
+.form-column {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-
-
 .form-control {
   width: 100%;
-  padding: 8px;  
+  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
@@ -293,8 +299,8 @@ body {
   font-size: 14px;
 }
 
-.update-btn {
-  background: #007bff;
+.save-btn {
+  background: #28a745;
   color: white;
 }
 
@@ -303,8 +309,8 @@ body {
   color: white;
 }
 
-.update-btn:hover {
-  background: #0056b3;
+.save-btn:hover {
+  background: #218838;
 }
 
 .cancel-btn:hover {
@@ -322,6 +328,7 @@ body {
     transform: scale(1);
   }
 }
+
 
 /* Bulk Upload Modal Overlay */
 .bulk-modal-overlay {
