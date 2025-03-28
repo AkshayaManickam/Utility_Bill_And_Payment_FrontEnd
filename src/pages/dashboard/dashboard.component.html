@@ -36,19 +36,6 @@
                   <p>Amount Received Today</p>
                   <h3>₹{{ homeData.amountReceived }}</h3>
               </div>
-          </div><br>
-
-          <h3 style="color:#001f73;">Visualize the Rate</h3>
-          <div class="chart-container">
-            <div class="chart-controls">
-              <select [(ngModel)]="selectedMetric" (change)="updateChart()">
-                <option value="amountReceived">Amount Received</option>
-                <option value="transactionRate">Rate of Transaction</option>
-                <option value="billsGenerated">No. of Bills Generated</option>
-              </select>
-              <button *ngIf="isChartGenerated" (click)="downloadChart()">Download</button>
-            </div>          
-            <canvas #amountChart></canvas>
           </div>
       </section>
 
@@ -99,8 +86,8 @@
         
             <!-- Buttons -->
             <div class="form-button">
-              <button class="btn cancel-btn" (click)="closeAddCustomerModal()">Cancel</button>
               <button class="btn save-btn" (click)="saveCustomer()">Save</button>
+              <button class="btn cancel-btn" (click)="closeAddCustomerModal()">Cancel</button>
             </div>
           </div>
         </div>
@@ -153,8 +140,8 @@
 
             <!-- Buttons -->
             <div class="form-button">
-              <button class="btn cancel-btn" (click)="closeEditCustomerModal()">Cancel</button>
               <button class="btn update-btn" (click)="updateCustomer()">Update</button>
+              <button class="btn cancel-btn" (click)="closeEditCustomerModal()">Cancel</button>
             </div>
           </div>
         </div>
@@ -233,8 +220,8 @@
         
             <!-- Buttons -->
             <div class="form-button">
-              <button class="btn cancel-btn" (click)="closeAddEmployeeModal()">Cancel</button>
               <button class="btn save-btn" (click)="saveEmployee()">Save</button>
+              <button class="btn cancel-btn" (click)="closeAddEmployeeModal()">Cancel</button>
             </div>
           </div>
         </div>
@@ -264,8 +251,8 @@
 
             <!-- Buttons -->
             <div class="form-button">
-              <button class="btn cancel-btn" (click)="closeEditEmployeeModal()">Cancel</button>
               <button class="btn update-btn" (click)="updateEmployee()">Update</button>
+              <button class="btn cancel-btn" (click)="closeEditEmployeeModal()">Cancel</button>
             </div>
           </div>
         </div>
@@ -300,7 +287,106 @@
           <span>Page {{ currentPage1 + 1 }} of {{ totalPages1 }}</span>
           <button (click)="changePage1(currentPage1 + 1)" [disabled]="currentPage1 === totalPages1 - 1">Next</button>
         </div>
-      </div> 
+      </div>
+      
+      <div class="manage-users-container" *ngIf="activeTab === 'invoice'">
+        <div class="top-controls">
+          <input type="text" [(ngModel)]="searchQuery1" placeholder="Search Invoice..." class="search-bar" />
+          <div class="buttons">
+            <button class="add-btn" (click)="openInvoiceModal()">Generate Invoice</button>
+          </div>
+        </div><br>
+
+        <div *ngIf="showInvoiceModal" class="invoice-modal-overlay">
+          <div class="invoice-modal-box">
+            <h4 class="invoice-header">Generate Invoice</h4>
+        
+            <div class="invoice-form-grid">
+              <!-- Left Column -->
+              <div class="invoice-form-column">
+                <label>Service Connection Number</label>
+                <input [(ngModel)]="serviceConnectionNumber" (change)="fetchCustomerDetails()" class="invoice-input" required>
+
+                <label>Customer Id</label>
+                <input [(ngModel)]="customer.id" class="invoice-input" readonly>
+        
+                <label>Customer Name</label>
+                <input [(ngModel)]="customer.name" class="invoice-input" readonly>
+        
+                <label>Customer Address</label>
+                <input [(ngModel)]="customer.address" class="invoice-input" readonly>
+        
+                <label>Customer Phone</label>
+                <input [(ngModel)]="customer.phone" class="invoice-input" readonly>
+              </div>
+        
+              <!-- Right Column -->
+              <div class="invoice-form-column">
+                <label>Units Consumed</label>
+                <input [(ngModel)]="unitsConsumed" (input)="calculateTotalAmount()" type="number" class="invoice-input" required>
+        
+                <label>Total Amount (₹)</label>
+                <input [(ngModel)]="totalAmount" class="invoice-input" readonly>
+        
+                <label>Bill Generated Date</label>
+                <input [(ngModel)]="billGeneratedDate" class="invoice-input" readonly>
+        
+                <label>Due Date</label>
+                <input [(ngModel)]="dueDate" class="invoice-input" readonly>
+              </div>
+            </div>
+        
+            <!-- Buttons -->
+            <div class="invoice-form-buttons">
+              <button class="invoice-btn save-btn" (click)="saveInvoice()">Save</button>
+              <button class="invoice-btn cancel-btn" (click)="closeInvoiceModal()">Cancel</button>
+            </div>
+          </div>
+        </div>
+        
+        
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>Invoice ID</th>
+              <th>Service Connection No</th>
+              <th>Customer Name</th>
+              <th>Units Consumed</th>
+              <th>Total Amount</th>
+              <th>Bill Date</th>
+              <th>Due Date</th>
+              <th>Payment Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let invoice of getPaginatedInvoices()">
+              <td>{{ invoice.id }}</td>
+              <td>{{ invoice.serviceConnectionNumber }}</td>
+              <td>{{ invoice.user.name }}</td>
+              <td>{{ invoice.unitsConsumed }}</td>
+              <td>{{ invoice.totalAmount | currency:'INR' }}</td>
+              <td>{{ invoice.billGeneratedDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ invoice.dueDate | date:'dd/MM/yyyy' }}</td>
+              <td [ngClass]="{ 'paid': invoice.isPaid === 'Paid', 'not-paid': invoice.isPaid === 'Not Paid' }">
+                {{ invoice.isPaid }}
+              </td>
+              <td>
+                <button class="edit-btn" (click)="editInvoice()"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" (click)="deleteInvoice()"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <br>
+        
+        <div class="pagination-controls">
+          <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
+          <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+          <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">Next</button>
+        </div>
+      </div>  
       
   </main>
 </div>

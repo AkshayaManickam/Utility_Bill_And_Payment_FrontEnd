@@ -37,10 +37,8 @@ body {
   .sidebar nav ul li.active {
     background: rgb(0, 208, 255);
     border-radius: 5px;
-    margin-bottom: 10px;
   }
 
-  
   .content {
     flex: 1;
     padding: 20px;
@@ -94,20 +92,6 @@ body {
     box-shadow: 0 2px 5px #001f73;
   }
   
-
-  .chart-container {
-    width: 60%;  /* Adjust the width as needed */
-    max-width: 900px;  /* Prevent it from getting too large */
-    height: 700px; 
-    text-align: center;
-    margin-top: 20px;
-  }
-  
-  .chart-controls {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
   
   select, button {
     padding: 8px;
@@ -337,7 +321,7 @@ body {
 /* Buttons */
 .form-button {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-top: 15px;
 }
 
@@ -347,6 +331,8 @@ body {
   border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
+  width: 90px;
+  margin-right: 20px;
 }
 
 .save-btn {
@@ -451,6 +437,7 @@ body {
   background: #28a745;
   color: white;
   transition: 0.3s;
+  width: 90px;
 }
 
 .upload-bulk-btn:hover {
@@ -467,4 +454,112 @@ body {
 .cancel-bulk-btn:hover {
   background: #c82333;
 }
+
+/* Modal Overlay */
+.invoice-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal Box */
+.invoice-modal-box {
+  background: #fff;
+  width: 600px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Modal Header */
+.invoice-header {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Form Grid */
+.invoice-form-grid {
+  display: flex;
+  gap: 15px;
+}
+
+/* Columns */
+.invoice-form-column {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Input Fields */
+.invoice-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+
+}
+
+/* Buttons Container */
+.invoice-form-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Buttons */
+.invoice-btn {
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 90px;
+  margin-right: 20px;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #218838;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 
