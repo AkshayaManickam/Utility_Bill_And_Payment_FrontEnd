@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Invoice } from '../model/Invoice';
 
 @Injectable({
   providedIn: 'root'
@@ -12,5 +13,9 @@ export class InvoiceService {
 
   saveInvoice(invoice: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/save`, invoice);
+  }
+  
+  getInvoices(): Observable<Invoice[]> {
+    return this.http.get<Invoice[]>(this.baseUrl);
   }
 }

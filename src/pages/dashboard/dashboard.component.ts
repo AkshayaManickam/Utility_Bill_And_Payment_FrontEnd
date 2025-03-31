@@ -6,6 +6,7 @@ import { UserService } from '../../services/user.service';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from '../../services/employee.service';
 import { InvoiceService } from '../../services/invoice.service';
+import { Invoice } from '../../model/Invoice';
 
   @Component({
     selector: 'app-dashboard',
@@ -14,9 +15,6 @@ import { InvoiceService } from '../../services/invoice.service';
     styleUrl: './dashboard.component.css'
   })
   export class DashboardComponent {
-getPaginatedInvoices(): any {
-throw new Error('Method not implemented.');
-}
 
     activeTab: string = 'home'; 
     homeData = {
@@ -53,6 +51,7 @@ throw new Error('Method not implemented.');
     ngOnInit() {
       this.fetchUsers();
       this.fetchEmployees();
+      this.fetchInvoices();
       this.setBillDates();
     }
 
@@ -352,23 +351,7 @@ throw new Error('Method not implemented.');
     closeInvoiceModal() {
       this.showInvoiceModal = false;
     }
-  
-    fetchCustomerDetails() {
-      if (this.serviceConnectionNumber) {
-        this.userService.getCustomerByServiceNo(this.serviceConnectionNumber).subscribe(
-          (data) => {
-            this.customer = data;
-            this.toastr.success('Customer details fetched successfully', 'Success');
-          },
-          (error) => {
-            console.error('Error fetching customer details', error);
-            this.customer = {};
-            this.toastr.error('Error fetching customer details', 'Error');
-          }
-        );
-      }
-    }
-    
+
     calculateTotalAmount() {
       this.totalAmount = this.unitsConsumed * 41.50;
     }
@@ -385,7 +368,6 @@ throw new Error('Method not implemented.');
     saveInvoice() {
       const invoiceData = {
         serviceConnectionNumber: this.serviceConnectionNumber,
-        user: { id: this.customer.id },
         unitsConsumed: this.unitsConsumed,
         totalAmount: this.totalAmount,
         billGeneratedDate: this.billGeneratedDate,
@@ -397,7 +379,7 @@ throw new Error('Method not implemented.');
           console.log('Invoice saved successfully:', response);
           this.toastr.success('Invoice saved successfully', 'Success');
           this.resetForm();
-          this.closeInvoiceModal(); // Close the modal after saving
+          this.closeInvoiceModal(); 
         },
         (error) => {
           console.error('Error saving invoice:', error);
@@ -408,7 +390,6 @@ throw new Error('Method not implemented.');
 
     resetForm() {
       this.serviceConnectionNumber = '';
-      this.customer = {};
       this.unitsConsumed = 0;
       this.totalAmount = 0;
       this.billGeneratedDate = new Date().toISOString().split('T')[0];
@@ -424,5 +405,41 @@ throw new Error('Method not implemented.');
     deleteInvoice() {
       console.log('Delete Invoice:');
       // Implement delete logic
+    }
+
+    invoices: Invoice[] = [];
+    currentPage2: number = 0;
+    itemsPerPage2: number = 5;
+    totalPages2: number = 0;
+
+    fetchInvoices(): void {
+      this.invoiceService.getInvoices().subscribe({
+        next: (data) => {
+          if (data && Array.isArray(data)) {
+            this.invoices = data;
+            console.log("Invoices fetched:", this.invoices);
+            this.totalPages2 = Math.ceil(this.invoices.length / this.itemsPerPage2);
+          } else {
+            console.error("Invalid API response:", data);
+            this.invoices = []; 
+          }
+        },
+        error: (error) => {
+          console.error("Error fetching invoices:", error);
+          this.invoices = []; 
+        }
+      });
+    }
+    
+  
+    getPaginatedInvoices(): Invoice[] {
+      const start = this.currentPage2 * this.itemsPerPage2;
+      return this.invoices.slice(start, start + this.itemsPerPage2);
+    }
+  
+    changePage2(page: number): void {
+      if (page >= 0 && page < this.totalPages2) {
+        this.currentPage2 = page;
+      }
     }
 }

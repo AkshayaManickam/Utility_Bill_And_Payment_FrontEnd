@@ -305,19 +305,9 @@
               <!-- Left Column -->
               <div class="invoice-form-column">
                 <label>Service Connection Number</label>
-                <input [(ngModel)]="serviceConnectionNumber" (change)="fetchCustomerDetails()" class="invoice-input" required>
+                <input [(ngModel)]="serviceConnectionNumber" class="invoice-input" required>
 
-                <label>Customer Id</label>
-                <input [(ngModel)]="customer.id" class="invoice-input" readonly>
-        
-                <label>Customer Name</label>
-                <input [(ngModel)]="customer.name" class="invoice-input" readonly>
-        
-                <label>Customer Address</label>
-                <input [(ngModel)]="customer.address" class="invoice-input" readonly>
-        
-                <label>Customer Phone</label>
-                <input [(ngModel)]="customer.phone" class="invoice-input" readonly>
+                <img src="assets/electricity-bill.jpg" alt="img" height="250px" width="300px" >
               </div>
         
               <!-- Right Column -->
@@ -343,14 +333,12 @@
             </div>
           </div>
         </div>
-        
-        
+         
         <table class="user-table">
           <thead>
             <tr>
               <th>Invoice ID</th>
               <th>Service Connection No</th>
-              <th>Customer Name</th>
               <th>Units Consumed</th>
               <th>Total Amount</th>
               <th>Bill Date</th>
@@ -361,32 +349,28 @@
           </thead>
           <tbody>
             <tr *ngFor="let invoice of getPaginatedInvoices()">
-              <td>{{ invoice.id }}</td>
+              <td>{{ invoice?.id }}</td>
               <td>{{ invoice.serviceConnectionNumber }}</td>
-              <td>{{ invoice.user.name }}</td>
-              <td>{{ invoice.unitsConsumed }}</td>
-              <td>{{ invoice.totalAmount | currency:'INR' }}</td>
-              <td>{{ invoice.billGeneratedDate | date:'dd/MM/yyyy' }}</td>
-              <td>{{ invoice.dueDate | date:'dd/MM/yyyy' }}</td>
-              <td [ngClass]="{ 'paid': invoice.isPaid === 'Paid', 'not-paid': invoice.isPaid === 'Not Paid' }">
-                {{ invoice.isPaid }}
+              <td>{{ invoice?.unitsConsumed }}</td>
+              <td>{{ invoice?.totalAmount | currency:'INR' }}</td>
+              <td>{{ invoice?.billGeneratedDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ invoice?.dueDate | date:'dd/MM/yyyy' }}</td>
+              <td [ngClass]="{ 'paid': invoice?.isPaid === 'Paid', 'not-paid': invoice?.isPaid === 'Not Paid' }">
+                {{ invoice?.isPaid }}
               </td>
               <td>
                 <button class="edit-btn" (click)="editInvoice()"><i class="fas fa-edit"></i></button>
                 <button class="delete-btn" (click)="deleteInvoice()"><i class="fas fa-trash"></i></button>
               </td>
-            </tr>
+            </tr>            
           </tbody>
         </table>
-        
         <br>
-        
         <div class="pagination-controls">
-          <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
-          <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-          <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">Next</button>
+          <button (click)="changePage2(currentPage2 - 1)" [disabled]="currentPage2 === 0">Previous</button>
+          <span>Page {{ currentPage2 + 1 }} of {{ totalPages2 }}</span>
+          <button (click)="changePage2(currentPage2 + 1)" [disabled]="currentPage2 === totalPages2 - 1">Next</button>
         </div>
-      </div>  
-      
+      </div>             
   </main>
 </div>
