@@ -7,6 +7,8 @@ import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from '../../services/employee.service';
 import { InvoiceService } from '../../services/invoice.service';
 import { Invoice } from '../../model/Invoice';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
   @Component({
     selector: 'app-dashboard',
@@ -17,13 +19,23 @@ import { Invoice } from '../../model/Invoice';
   export class DashboardComponent {
 
     activeTab: string = 'home'; 
-    homeData = {
-      users: 120,
-      bills: 45,
-      amountReceived: 2400
-    };
 
-    hourlyData = [100, 200, 150, 300, 250, 180, 220, 170, 90, 110, 200, 310]; // Sample hourly earnings data
+    homeData = { users: 0 , bills: 0};
+   
+    fetchUserCount() {
+      this.userService.getUserCount().subscribe((data) => {
+        this.homeData.users = data;
+        console.log(this.homeData.users);
+      });
+    }
+
+    fetchBillCount() {
+      this.invoiceService.getBillCount().subscribe((data) => {
+        this.homeData.bills = data;
+        console.log(this.homeData.bills);
+      });
+    }
+    
 
     constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService) {}
 
@@ -52,7 +64,9 @@ import { Invoice } from '../../model/Invoice';
       this.fetchUsers();
       this.fetchEmployees();
       this.fetchInvoices();
+      this.fetchBillCount();
       this.setBillDates();
+      this.fetchUserCount();
     }
 
     fetchUsers() {
@@ -146,6 +160,7 @@ import { Invoice } from '../../model/Invoice';
       this.userService.addCustomer(this.newCustomer).subscribe(
         response => {
           this.fetchUsers();
+          this.fetchUserCount();
           this.toastr.success('Customer added successfully!', 'Success');
           this.closeAddCustomerModal();
         },
@@ -189,6 +204,7 @@ import { Invoice } from '../../model/Invoice';
       this.employeeService.addEmployee(this.newEmployee).subscribe(
         response => {
           this.fetchEmployees();
+          this.fetchBillCount();
           this.toastr.success('Employee added successfully!', 'Success');
           console.log(1);
           this.closeAddEmployeeModal();
@@ -309,8 +325,8 @@ import { Invoice } from '../../model/Invoice';
       if (confirm(`Are you sure you want to delete ${user.name}?`)) {
         this.userService.deleteUser(user.id).subscribe(
           () => {
-            this.toastr.success('User deleted successfully!', 'Success');
             this.fetchUsers(); 
+            this.toastr.success('User deleted successfully!', 'Success');
           },
           error => {
             this.toastr.error('Error deleting user!', 'Error');
@@ -323,8 +339,8 @@ import { Invoice } from '../../model/Invoice';
       if (confirm(`Are you sure you want to delete ${employee.name}?`)) {
         this.employeeService.deleteEmployee(employee.id).subscribe(
           () => {
-            this.toastr.success('User deleted successfully!', 'Success');
             this.fetchEmployees(); 
+            this.toastr.success('User deleted successfully!', 'Success');
           },
           error => {
             this.toastr.error('Error deleting user!', 'Error');
@@ -431,11 +447,23 @@ import { Invoice } from '../../model/Invoice';
         }
       });
     }
-    
-  
-    getPaginatedInvoices(): Invoice[] {
-      const start = this.currentPage2 * this.itemsPerPage2;
-      return this.invoices.slice(start, start + this.itemsPerPage2);
+
+    filteredInvoices() {
+      return this.invoices.filter(invoice =>
+        invoice.id.toString().includes(this.searchQuery1) ||
+        invoice.serviceConnectionNumber.toLowerCase().includes(this.searchQuery1.toLowerCase()) ||
+        invoice.unitsConsumed.toString().includes(this.searchQuery1) ||
+        invoice.totalAmount.toString().includes(this.searchQuery1) ||
+        new Date(invoice.billGeneratedDate).toLocaleDateString().includes(this.searchQuery1) ||
+        new Date(invoice.dueDate).toLocaleDateString().includes(this.searchQuery1) ||
+        invoice.isPaid.toLowerCase().includes(this.searchQuery1.toLowerCase())
+      );
+    }
+     
+    getPaginatedInvoices() {
+      const filtered = this.filteredInvoices();
+      const startIndex = this.currentPage2 * this.itemsPerPage2;
+      return filtered.slice(startIndex, startIndex + this.itemsPerPage2);
     }
   
     changePage2(page: number): void {
@@ -443,4 +471,95 @@ import { Invoice } from '../../model/Invoice';
         this.currentPage2 = page;
       }
     }
-}
+
+    downloadUserPDF() {
+      const doc = new jsPDF({ orientation: 'landscape' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const headerImg = 'assets/header.png'; // Replace with actual path
+      doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 15);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.setTextColor(40, 40, 100);
+      doc.text('Customer Data Report', pageWidth / 2, 30, { align: 'center' });
+      const headers = [['Customer ID', 'Service Conn No.', 'Name', 'Email', 'Phone', 'Address', 'Units', 'Start Date']];
+      const data = this.users.map(user => [
+        user.customerId, user.serviceConnectionNo, user.name, user.email, user.phone, user.address, user.unitsConsumption, user.startDate
+      ]);
+      autoTable(doc, {
+        head: headers,
+        body: data,
+        startY: 35,
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+      });
+      const footerImg = 'assets/footer.png'; // Replace with actual path
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 15);
+      doc.save('Customer_Data.pdf');
+    }
+
+    downloadEmployeePDF() {
+      const doc = new jsPDF({ orientation: 'landscape' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const headerImg = 'assets/header.png'; 
+      doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 25); 
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(40, 40, 100);
+      doc.text('Employee Data Report', pageWidth / 2, 35, { align: 'center' });
+      const headers = [['Employee ID', 'Name', 'Email', 'Phone']];
+      const data = this.employees.map(emp => [
+        emp.employeeId, emp.name, emp.email, emp.phone
+      ]);
+    
+      autoTable(doc, {
+        head: headers,
+        body: data,
+        startY: 45, 
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+      });
+      const footerImg = 'assets/footer.png'; 
+      doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20); 
+      doc.save('Employee_Data.pdf');
+    }
+
+    downloadInvoicePDF() {
+      const doc = new jsPDF({ orientation: 'landscape' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const headerImg = 'assets/header.png'; 
+      doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 25); 
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(40, 40, 100);
+      doc.text('Electricity Invoice Report', pageWidth / 2, 35, { align: 'center' });
+      const headers = [['Invoice ID', 'Service Connection No', 'Units Consumed', 'Total Amount', 'Bill Date', 'Due Date', 'Payment Status']];
+      const data = this.invoices.map(inv => [
+        inv.id, 
+        inv.serviceConnectionNumber, 
+        inv.unitsConsumed, 
+        `${inv.totalAmount}`, 
+        new Date(inv.billGeneratedDate).toLocaleDateString(), 
+        new Date(inv.dueDate).toLocaleDateString(), 
+        inv.isPaid
+      ]);
+    
+      autoTable(doc, {
+        head: headers,
+        body: data,
+        startY: 45,
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+      });
+      const footerImg = 'assets/footer.png';
+      doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20);
+      doc.save('Electricity_Invoice_Report.pdf');
+    }    
+    
+  }
+  

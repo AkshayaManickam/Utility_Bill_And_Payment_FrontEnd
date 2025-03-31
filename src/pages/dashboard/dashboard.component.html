@@ -23,7 +23,8 @@
 
       <section *ngIf="activeTab === 'home'">
           <h2 style="color:#001f73;">Today's Update</h2><br>
-          <img src="assets/1.png" alt="img" height="450px" width="400px" style="float: right;">
+          <img src="assets/2.png" alt="img" height="300px" width="350px">
+          <img src="assets/1.png" alt="img" height="400px" width="400px" style="float: right;">
           <div class="summary">
               <div class="card">
                   <p>Number of Users</p>
@@ -35,17 +36,16 @@
               </div>
               <div class="card">
                   <p>Amount Received Today</p>
-                  <h3>₹{{ homeData.amountReceived }}</h3>
+                  <h3>₹{{ homeData.users }}</h3>
               </div>
-          </div>
-          <img src="assets/2.png" alt="img" height="300px" width="350px" style="margin-top: 20px;margin-left: 450px;">
-          
+          </div> 
       </section>
 
       <div class="manage-users-container" *ngIf="activeTab === 'users'">
         <div class="top-controls">
           <input type="text" [(ngModel)]="searchQuery" placeholder="Search customers..." class="search-bar" />
           <div class="buttons">
+            <button class="add-btn" (click)="downloadUserPDF()">Download</button>
             <button class="add-btn" (click)="openAddCustomerModal()">Add Customer</button>
             <button class="bulk-btn" (click)="openBulkUploadModal()">Bulk Upload</button>
           </div>
@@ -194,6 +194,7 @@
         <div class="top-controls">
           <input type="text" [(ngModel)]="searchQuery1" placeholder="Search Employees..." class="search-bar" />
           <div class="buttons">
+            <button class="add-btn" (click)="downloadEmployeePDF()">Download</button>
             <button class="add-btn" (click)="openAddEmployeeModal()">Add Employee</button>
           </div>
         </div><br>
@@ -296,6 +297,7 @@
         <div class="top-controls">
           <input type="text" [(ngModel)]="searchQuery1" placeholder="Search Invoice..." class="search-bar" />
           <div class="buttons">
+            <button class="add-btn" (click)="downloadInvoicePDF()">Download</button>
             <button class="add-btn" (click)="openInvoiceModal()">Generate Invoice</button>
           </div>
         </div><br>
