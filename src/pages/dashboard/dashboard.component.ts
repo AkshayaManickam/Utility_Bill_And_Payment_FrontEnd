@@ -378,6 +378,7 @@ import { Invoice } from '../../model/Invoice';
         (response) => {
           console.log('Invoice saved successfully:', response);
           this.toastr.success('Invoice saved successfully', 'Success');
+          this.fetchInvoices();
           this.resetForm();
           this.closeInvoiceModal(); 
         },

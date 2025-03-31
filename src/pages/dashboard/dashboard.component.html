@@ -23,6 +23,7 @@
 
       <section *ngIf="activeTab === 'home'">
           <h2 style="color:#001f73;">Today's Update</h2><br>
+          <img src="assets/1.png" alt="img" height="450px" width="400px" style="float: right;">
           <div class="summary">
               <div class="card">
                   <p>Number of Users</p>
@@ -37,6 +38,8 @@
                   <h3>₹{{ homeData.amountReceived }}</h3>
               </div>
           </div>
+          <img src="assets/2.png" alt="img" height="300px" width="350px" style="margin-top: 20px;margin-left: 450px;">
+          
       </section>
 
       <div class="manage-users-container" *ngIf="activeTab === 'users'">
@@ -371,6 +374,7 @@
           <span>Page {{ currentPage2 + 1 }} of {{ totalPages2 }}</span>
           <button (click)="changePage2(currentPage2 + 1)" [disabled]="currentPage2 === totalPages2 - 1">Next</button>
         </div>
-      </div>             
+      </div>  
+                 
   </main>
 </div>
