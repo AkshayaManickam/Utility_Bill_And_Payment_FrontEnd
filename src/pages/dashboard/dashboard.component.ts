@@ -9,6 +9,7 @@ import { InvoiceService } from '../../services/invoice.service';
 import { Invoice } from '../../model/Invoice';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import 'jspdf-autotable';
 
   @Component({
     selector: 'app-dashboard',
@@ -206,9 +207,7 @@ import autoTable from 'jspdf-autotable';
           this.fetchEmployees();
           this.fetchBillCount();
           this.toastr.success('Employee added successfully!', 'Success');
-          console.log(1);
           this.closeAddEmployeeModal();
-          console.log(2);
         },
         error => {
           this.toastr.error('Error adding Employee!', 'Error');
@@ -357,7 +356,20 @@ import autoTable from 'jspdf-autotable';
     totalAmount: number = 0;
     billGeneratedDate: string = new Date().toISOString().split('T')[0]; // Current date
     dueDate: string = '';
+    totalConsumed: number = 0;
 
+    fetchTotalConsumption() {
+      if (this.serviceConnectionNumber) {
+        this.userService.getTotalConsumption(this.serviceConnectionNumber).subscribe(
+          (data) => {
+            this.totalConsumed = data;
+          },
+          (error) => {
+            console.error('Failed to fetch total consumption', error);
+          }
+        );
+      }
+    }
 
     openInvoiceModal() {
       this.showInvoiceModal = true;
@@ -369,7 +381,12 @@ import autoTable from 'jspdf-autotable';
     }
 
     calculateTotalAmount() {
-      this.totalAmount = this.unitsConsumed * 41.50;
+      if (this.selectedInvoice) { 
+        this.selectedInvoice.totalAmount = this.selectedInvoice.unitsConsumed * 41.50;
+      }
+      const remainingUnits = this.unitsConsumed - this.totalConsumed;
+      console.log(remainingUnits);
+      this.totalAmount = remainingUnits * 41.50;
     }
   
     setBillDates() {
@@ -394,6 +411,7 @@ import autoTable from 'jspdf-autotable';
         (response) => {
           console.log('Invoice saved successfully:', response);
           this.toastr.success('Invoice saved successfully', 'Success');
+          this.fetchUsers();
           this.fetchInvoices();
           this.resetForm();
           this.closeInvoiceModal(); 
@@ -409,19 +427,9 @@ import autoTable from 'jspdf-autotable';
       this.serviceConnectionNumber = '';
       this.unitsConsumed = 0;
       this.totalAmount = 0;
+      this.totalConsumed=0;
       this.billGeneratedDate = new Date().toISOString().split('T')[0];
       this.dueDate = '';
-    }
-
-
-    editInvoice() {
-      console.log('Edit Invoice:');
-      // Implement edit logic
-    }
-
-    deleteInvoice() {
-      console.log('Delete Invoice:');
-      // Implement delete logic
     }
 
     invoices: Invoice[] = [];
@@ -559,7 +567,104 @@ import autoTable from 'jspdf-autotable';
       const footerImg = 'assets/footer.png';
       doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20);
       doc.save('Electricity_Invoice_Report.pdf');
-    }    
+    }
+    
+    showEditInvoiceModal = false;
+    selectedInvoice: any = {};
+    enteredPassword: string = ''; // Stores user-entered password
+    correctPassword: string = '1234'; // Change this to the actual password or fetch from backend
+
+    editInvoice(invoice: any) {
+
+      const userPassword = prompt('Enter password to edit invoice:'); // Prompt user for password
+      if (userPassword === this.correctPassword) {
+        this.selectedInvoice = { ...invoice }; 
+        this.setBillDates();
+        this.showEditInvoiceModal = true;
+      } 
+      else {
+        this.showEditInvoiceModal = false;
+        alert('Incorrect password! Access denied.');
+      }
+    }
+
+    closeEditInvoiceModal() {
+      this.showEditInvoiceModal = false;
+    }
+
+    updateInvoice() {
+      this.invoiceService.updateInvoice(this.selectedInvoice).subscribe(
+        (response) => {
+          this.toastr.success("Invoice updated successfully!");
+          this.fetchInvoices(); // Refresh the invoice list
+          console.log(this.selectedInvoice);
+          this.showEditInvoiceModal = false;
+        },
+        (error) => {
+          this.toastr.error("Failed to update invoice.");
+        }
+      );
+    } 
+    
+    downloadParticularInvoice(invoice: any) {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const headerImg = 'assets/header.png'; 
+      doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 15); 
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.setTextColor(40, 40, 100);
+      doc.text('INVOICE', pageWidth / 2, 35, { align: 'center' });
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Invoice ID: ${invoice.id}`, 14, 45);
+      doc.text(`Bill Date: ${new Date(invoice.billGeneratedDate).toLocaleDateString()}`, 14, 55);
+      doc.text(`Due Date: ${new Date(invoice.dueDate).toLocaleDateString()}`, 14, 65);
+      doc.setDrawColor(0);
+      doc.line(14, 70, pageWidth - 14, 70);
+      doc.setFontSize(14);
+      doc.setTextColor(0, 102, 204); 
+      doc.text('Customer Details', 14, 80);  
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);  
+      doc.text(`Service Connection No: ${invoice.serviceConnectionNumber}`, 14, 90);
+      doc.setDrawColor(0);
+      doc.line(14, 100, pageWidth - 14, 100);
+      const tableColumn = ["Item", "Details"];
+      const tableRows = [
+        ["Units Consumed", invoice.unitsConsumed],
+        ["Total Amount", invoice.totalAmount],
+        ["Payment Status", invoice.isPaid],
+      ];
+      autoTable(doc,{
+        startY: 105, 
+        head: [tableColumn],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [0, 102, 204], 
+          textColor: [255, 255, 255], 
+          fontSize: 12,
+          fontStyle: 'bold',
+          halign: 'center',
+        },
+        bodyStyles: {
+          fontSize: 12,
+          halign: 'left',
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240],
+        },
+        margin: { top: 10, left: 14, right: 14 },
+      });
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      const footerImg = 'assets/footer.png';
+      doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20);
+      doc.save(`Invoice_${invoice.id}.pdf`);
+    }
+    
     
   }
   

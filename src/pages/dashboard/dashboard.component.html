@@ -8,7 +8,7 @@
               </li>
               <li [class.active]="activeTab === 'users'" (click)="activeTab = 'users'"><i class="icon-user"></i> Manage Users</li>
               <li [class.active]="activeTab === 'employees'" (click)="activeTab = 'employees'"><i class="icon-user"></i> Manage Employees</li>
-              <li [class.active]="activeTab === 'invoice'" (click)="activeTab = 'invoice'"><i class="icon-invoice"></i> Generate Invoice</li>
+              <li [class.active]="activeTab === 'invoice'" (click)="activeTab = 'invoice'"><i class="icon-invoice"></i> Manage Invoice</li>
               <li [class.active]="activeTab === 'reports'" (click)="activeTab = 'reports'"><i class="icon-report"></i> Reports</li>
               <li (click)="logout()"><i class="icon-out"></i> Log out</li>
           </ul>
@@ -310,14 +310,17 @@
               <!-- Left Column -->
               <div class="invoice-form-column">
                 <label>Service Connection Number</label>
-                <input [(ngModel)]="serviceConnectionNumber" class="invoice-input" required>
+                <input [(ngModel)]="serviceConnectionNumber" (input)="fetchTotalConsumption()" class="invoice-input" required>
 
                 <img src="assets/electricity-bill.jpg" alt="img" height="250px" width="300px" >
               </div>
         
               <!-- Right Column -->
               <div class="invoice-form-column">
-                <label>Units Consumed</label>
+                <label>Total Units</label>
+                <input [(ngModel)]="totalConsumed" type="number" class="invoice-input" readonly>
+
+                <label>Consumed units </label>
                 <input [(ngModel)]="unitsConsumed" (input)="calculateTotalAmount()" type="number" class="invoice-input" required>
         
                 <label>Total Amount (₹)</label>
@@ -364,19 +367,60 @@
                 {{ invoice?.isPaid }}
               </td>
               <td>
-                <button class="edit-btn" (click)="editInvoice()"><i class="fas fa-edit"></i></button>
-                <button class="delete-btn" (click)="deleteInvoice()"><i class="fas fa-trash"></i></button>
+                <button class="edit-btn" (click)="editInvoice(invoice)"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" (click)="downloadParticularInvoice(invoice)"><i class="fas fa-download"></i></button>
               </td>
             </tr>            
           </tbody>
         </table>
         <br>
+
+
+        <!-- Edit Invoice Modal -->
+        <div *ngIf="showEditInvoiceModal" class="popup-overlay">
+          <div class="popup-box">
+            <h4>Edit Invoice</h4>
+
+            <div class="form-grid">
+              <!-- Left Column -->
+              <div class="form-column">
+                <label>Invoice ID</label>
+                <input [(ngModel)]="selectedInvoice.id" class="form-control" readonly>
+
+                <label>Service Connection No</label>
+                <input [(ngModel)]="selectedInvoice.serviceConnectionNumber" class="form-control" readonly>
+
+                <label>Units Consumed</label>
+                <input [(ngModel)]="selectedInvoice.unitsConsumed" (input)="calculateTotalAmount()" type="number" class="form-control" required>
+              </div>
+
+              <!-- Right Column -->
+              <div class="form-column">
+                <label>Total Amount (₹)</label>
+                <input [(ngModel)]="selectedInvoice.totalAmount" class="form-control" readonly>
+
+                <label>Bill Date</label>
+                <input [(ngModel)]="selectedInvoice.billGeneratedDate" class="form-control" readOnly>
+
+                <label>Due Date</label>
+                <input [(ngModel)]="selectedInvoice.dueDate" class="form-control" readonly>
+
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-button">
+              <button class="btn update-btn" (click)="updateInvoice()">Update</button>
+              <button class="btn cancel-btn" (click)="closeEditInvoiceModal()">Cancel</button>
+            </div>
+          </div>
+        </div>
+
         <div class="pagination-controls">
           <button (click)="changePage2(currentPage2 - 1)" [disabled]="currentPage2 === 0">Previous</button>
           <span>Page {{ currentPage2 + 1 }} of {{ totalPages2 }}</span>
           <button (click)="changePage2(currentPage2 + 1)" [disabled]="currentPage2 === totalPages2 - 1">Next</button>
         </div>
-      </div>  
-                 
+      </div>                
   </main>
 </div>

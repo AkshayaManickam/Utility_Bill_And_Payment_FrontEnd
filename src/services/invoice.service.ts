@@ -22,4 +22,8 @@ export class InvoiceService {
   getBillCount(): Observable<number> {
     return this.http.get<number>(`${this.baseUrl}/count`);
   }
+
+  updateInvoice(invoice: Invoice): Observable<Invoice> {
+    return this.http.put<Invoice>(`${this.baseUrl}/${invoice.id}`, invoice);
+  }
 }

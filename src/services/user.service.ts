@@ -33,7 +33,12 @@ export class UserService {
   getCustomerByServiceNo(serviceConnectionNo: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/service/${serviceConnectionNo}`);
   }
+  
   getUserCount(): Observable<number> {
     return this.http.get<number>(this.apiUrl);
+  }
+
+  getTotalConsumption(serviceConnectionNumber: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/consumption/${serviceConnectionNumber}`);
   }
 }
