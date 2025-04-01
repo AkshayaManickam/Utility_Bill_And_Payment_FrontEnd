@@ -257,16 +257,44 @@ import 'jspdf-autotable';
       this.userService.uploadCustomers(formData).subscribe(
         (response: any) => {
           console.log("Upload Success:", response); // ✅ Debugging
-          this.toastr.success(response.message, "Success");
+          this.toastr.success(response.message || "File uploaded successfully!", "Success");
           this.fetchUsers();
           this.closeBulkUploadModal();
         },
         (error: any) => {
           console.error("Upload Error:", error); // ✅ Debugging
-          this.toastr.error("Error uploading file!");
+    
+          // Default error message
+          let errorMessage = "Error uploading file! Please try again.";
+    
+          if (error.error && error.error.message) {
+            const backendMessage = error.error.message;
+    
+            if (backendMessage.includes("Duplicate entry")) {
+              // Extract duplicate entry details
+              const match = backendMessage.match(/Duplicate entry '(.*?)'/);
+              const duplicateEntry = match ? match[1] : "Unknown";
+    
+              errorMessage = `Customer ID '${duplicateEntry}' is already registered. Please check your file for duplicates before uploading.`;
+            } else if (backendMessage.includes("constraint")) {
+              errorMessage = "Data integrity issue detected! Please check that the CSV file does not contain conflicting or missing values.";
+            } else {
+              errorMessage = backendMessage; // Use backend message for other cases
+            }
+          } else if (error.status === 400) {
+            errorMessage = "Bad Request! Please check your CSV format.";
+          } else if (error.status === 413) {
+            errorMessage = "File too large! Please upload a smaller CSV file.";
+          } else if (error.status === 500) {
+            errorMessage = "Internal Server Error! Please contact support.";
+          }
+    
+          this.toastr.error(errorMessage, "Upload Failed");
         }
       );
     }
+    
+    
     
     customers: any[] = [];
     showEditCustomerModal: boolean = false;
@@ -664,7 +692,62 @@ import 'jspdf-autotable';
       doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20);
       doc.save(`Invoice_${invoice.id}.pdf`);
     }
-    
-    
+
+    invoiceId!: string; // Assert that invoiceId will be initialized
+    invoiceDetails!: any; // Assert that invoiceDetails will be initialized
+    discountType: string = 'beforeDuedate'; // Initialize with a default value
+    paymentAmount!: number;
+
+    // Simulate fetching invoice details from a backend
+    fetchInvoiceDetails() {
+      if (this.invoiceId) {
+        this.invoiceService.getInvoiceDetails(this.invoiceId).subscribe(
+          (data: any) => {
+            console.log(data);
+            this.invoiceDetails = data;
+          },
+          (error) => {
+            console.error('Error fetching invoice details', error);
+          }
+        );
+      }
+    }
+
+    submitPaymentForm() {
+      // Handle form submission logic here, e.g., make an API call to complete payment
+      console.log('Form submitted:', {
+        invoiceId: this.invoiceId,
+        discountType: this.discountType,
+        paymentAmount: this.paymentAmount
+      });
+    }
+
+    calculatePaymentAmount() {
+      console.log('Hii');
+      if (this.invoiceDetails) {
+        const totalAmount = this.invoiceDetails.totalAmount;
+        const dueDate = new Date(this.invoiceDetails.dueDate);
+        const currentDate = new Date();
+
+        console.log(totalAmount);
+        
+        if (this.discountType === 'beforeDuedate') {
+          // Apply discount if payment is before the due date (e.g., 10% discount)
+          if (currentDate <= dueDate) {
+            this.paymentAmount = totalAmount * 0.9; // 10% discount before due date
+          } else {
+            this.paymentAmount = totalAmount; // No discount if after due date
+          }
+        } else if (this.discountType === 'afterDueDate') {
+          // Apply penalty if payment is after the due date (e.g., 5% penalty)
+          if (currentDate > dueDate) {
+            this.paymentAmount = totalAmount * 1.05; // 5% penalty after due date
+          } else {
+            this.paymentAmount = totalAmount; // No penalty if before due date
+          }
+        }
+      }
+    }
+       
   }
   

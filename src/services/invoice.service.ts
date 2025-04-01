@@ -26,4 +26,8 @@ export class InvoiceService {
   updateInvoice(invoice: Invoice): Observable<Invoice> {
     return this.http.put<Invoice>(`${this.baseUrl}/${invoice.id}`, invoice);
   }
+
+  getInvoiceDetails(invoiceId: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${invoiceId}`);
+  }
 }

@@ -9,7 +9,7 @@
               <li [class.active]="activeTab === 'users'" (click)="activeTab = 'users'"><i class="icon-user"></i> Manage Users</li>
               <li [class.active]="activeTab === 'employees'" (click)="activeTab = 'employees'"><i class="icon-user"></i> Manage Employees</li>
               <li [class.active]="activeTab === 'invoice'" (click)="activeTab = 'invoice'"><i class="icon-invoice"></i> Manage Invoice</li>
-              <li [class.active]="activeTab === 'reports'" (click)="activeTab = 'reports'"><i class="icon-report"></i> Recipts</li>
+              <li [class.active]="activeTab === 'recipt'" (click)="activeTab = 'recipt'"><i class="icon-report"></i> Recipts</li>
               <li (click)="logout()"><i class="icon-out"></i> Log out</li>
           </ul>
       </nav>
@@ -421,8 +421,68 @@
           <span>Page {{ currentPage2 + 1 }} of {{ totalPages2 }}</span>
           <button (click)="changePage2(currentPage2 + 1)" [disabled]="currentPage2 === totalPages2 - 1">Next</button>
         </div>
-      </div>  
+      </div> 
       
-      
+      <div *ngIf="activeTab === 'recipt'" class="payment-container">
+        <form (ngSubmit)="submitPaymentForm()" class="payment-form">
+          <div class="form-layout">
+            <!-- Left Column: Invoice Input and Details -->
+            <div class="form-column">
+              <div class="form-group">
+                <label for="invoiceId">Invoice ID:</label>
+                <input type="text" id="invoiceId" [(ngModel)]="invoiceId" name="invoiceId" required class="form-control" placeholder="Enter Invoice ID" (ngModelChange)="fetchInvoiceDetails()" />
+              </div>
+              
+              <div *ngIf="invoiceDetails" class="invoice-details">
+                <div class="form-group">
+                  <label>Invoice Details:</label>
+                </div>
+                <div class="invoice-details-grid">
+                  <div class="invoice-detail">
+                    <label>Due Date:</label>
+                    <p>{{ invoiceDetails.dueDate }}</p>
+                  </div>
+                  <div class="invoice-detail">
+                    <label>Service Connection Number:</label>
+                    <p>{{ invoiceDetails.serviceConnectionNumber }}</p>
+                  </div>
+                  <div class="invoice-detail">
+                    <label>Total Amount:</label>
+                    <p>{{ invoiceDetails.totalAmount }}</p>
+                  </div>
+                  <div class="invoice-detail">
+                    <label>Units Consumed:</label>
+                    <p>{{ invoiceDetails.unitsConsumed }}</p>
+                  </div>
+                  <div class="invoice-detail">
+                    <label>Customer ID:</label>
+                    <p>{{ invoiceDetails.id }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column: Payment and Submission -->
+            <div class="form-column">
+              <div class="form-group">
+                <label for="discountType">Apply Discount:</label>
+                <select id="discountType" [(ngModel)]="discountType" name="discountType" class="form-control" (ngModelChange)="calculatePaymentAmount()">
+                  <option value="beforeDuedate">Before Due Date</option>
+                  <option value="afterDueDate">After Due Date</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="paymentAmount">Amount to Pay:</label>
+                <input type="number" id="paymentAmount" [(ngModel)]="paymentAmount" name="paymentAmount" required class="form-control" placeholder="Amount to Pay" [readonly]="true" />
+              </div>
+              
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Complete</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
   </main>
 </div>
