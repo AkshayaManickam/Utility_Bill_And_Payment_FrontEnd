@@ -20,6 +20,6 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token'); // ✅ Check if token exists
+    return !!localStorage.getItem('token'); 
   }
 }
