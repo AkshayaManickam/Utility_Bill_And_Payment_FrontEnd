@@ -466,7 +466,7 @@
             <div class="form-column">
               <div class="form-group">
                 <label for="discountType">Apply Discount:</label>
-                <select id="discountType" [(ngModel)]="discountType" name="discountType" class="form-control" (ngModelChange)="calculatePaymentAmount()">
+                <select id="discountType" [(ngModel)]="discountType" name="discountType" class="form-control" (ngModelChange)="calculatePaymentAmount()" >
                   <option value="beforeDuedate">Before Due Date</option>
                   <option value="afterDueDate">After Due Date</option>
                 </select>
@@ -478,7 +478,7 @@
               </div>
               
               <div class="form-group">
-                <button type="submit" class="btn btn-primary">Complete</button>
+                <button type="submit" class="btn btn-primary" style="width: 150px;">Update Payment</button>
               </div>
             </div>
           </div>

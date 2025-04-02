@@ -10,6 +10,8 @@ import { Invoice } from '../../model/Invoice';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import 'jspdf-autotable';
+import { PaymentService } from '../../services/payment.service';
+import { TransactionService } from '../../services/transaction.service';
 
   @Component({
     selector: 'app-dashboard',
@@ -38,7 +40,7 @@ import 'jspdf-autotable';
     }
     
 
-    constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService) {}
+    constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService,private paymentService: PaymentService,private transactionService: TransactionService) {}
 
     showHome() {
       this.activeTab = 'home';
@@ -695,8 +697,8 @@ import 'jspdf-autotable';
 
     invoiceId!: string; // Assert that invoiceId will be initialized
     invoiceDetails!: any; // Assert that invoiceDetails will be initialized
-    discountType: string = 'beforeDuedate'; // Initialize with a default value
     paymentAmount!: number;
+    discountType: string = '';
 
     // Simulate fetching invoice details from a backend
     fetchInvoiceDetails() {
@@ -714,40 +716,104 @@ import 'jspdf-autotable';
     }
 
     submitPaymentForm() {
-      // Handle form submission logic here, e.g., make an API call to complete payment
-      console.log('Form submitted:', {
-        invoiceId: this.invoiceId,
+      const transaction = {
+        invoice: { id: this.invoiceId },
+        totalAmount: this.totalAmount,
         discountType: this.discountType,
-        paymentAmount: this.paymentAmount
-      });
-    }
-
-    calculatePaymentAmount() {
-      console.log('Hii');
-      if (this.invoiceDetails) {
-        const totalAmount = this.invoiceDetails.totalAmount;
-        const dueDate = new Date(this.invoiceDetails.dueDate);
-        const currentDate = new Date();
-
-        console.log(totalAmount);
-        
-        if (this.discountType === 'beforeDuedate') {
-          // Apply discount if payment is before the due date (e.g., 10% discount)
-          if (currentDate <= dueDate) {
-            this.paymentAmount = totalAmount * 0.9; // 10% discount before due date
-          } else {
-            this.paymentAmount = totalAmount; // No discount if after due date
-          }
-        } else if (this.discountType === 'afterDueDate') {
-          // Apply penalty if payment is after the due date (e.g., 5% penalty)
-          if (currentDate > dueDate) {
-            this.paymentAmount = totalAmount * 1.05; // 5% penalty after due date
-          } else {
-            this.paymentAmount = totalAmount; // No penalty if before due date
-          }
+        amountPaid: this.paymentAmount,
+        paymentMethod: 'CASH',
+        transactionStatus: 'SUCCESS',
+      };
+  
+      this.transactionService.saveTransaction(transaction).subscribe(
+        (response) => {
+          this.toastr.success('Payment Successful!', 'Success');
+          console.log('Transaction Saved:', response);
+          this.downloadPaymentBill(response);
+          this.resetFormTransaction();
+        },
+        (error) => {
+          this.toastr.error('Payment Failed!', 'Error');
+          console.error('Transaction Error:', error);
         }
-      }
+      );
     }
-       
+  
+    resetFormTransaction() {
+        this.invoiceId = '';  
+        this.totalAmount = 0;  
+        this.discountType = '';  
+        this.paymentAmount = 0;   
+        this.fetchInvoiceDetails(); 
+        window.location.reload();
+    }
+    
+  
+    downloadPaymentBill(transaction: any) {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.setFillColor(240, 240, 240);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      const logoImg = 'assets/1.png'; 
+      doc.addImage(logoImg, 'PNG', 10, 10, 50, 20);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(24);
+      doc.setTextColor(0, 102, 204);
+      doc.text('Payment Receipt', pageWidth / 2, 40, { align: 'center' });
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      const amountPaid = (transaction.amountPaid && !isNaN(transaction.amountPaid)) ? transaction.amountPaid.toFixed(2) : '0.00';
+      let lineHeight = 10;
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Invoice ID: ${transaction.invoice.id}`, 20, 60 + lineHeight);
+      lineHeight += 7;
+      doc.text(`Date: ${new Date(transaction.transactionDate).toLocaleDateString()}`, 20, 60 + lineHeight);
+      lineHeight += 7;
+      doc.text(`Discount: ${transaction.discountType ? transaction.discountType : 'None'}`, 20, 60 + lineHeight);
+      lineHeight += 7;
+      doc.text(`Amount Paid: $${amountPaid}`, 20, 60 + lineHeight);
+      lineHeight += 7;
+      doc.text(`Payment Method: ${transaction.paymentMethod}`, 20, 60 + lineHeight);
+      lineHeight += 7;
+      doc.text(`Transaction Status: ${transaction.transactionStatus}`, 20, 60 + lineHeight);
+      lineHeight += 10;
+      doc.setDrawColor(0, 102, 204);
+      doc.line(20, 60 + lineHeight, pageWidth - 20, 60 + lineHeight);
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0); 
+      doc.text('Thank you for your payment. If you have any questions, contact our support.', 20, 70 + lineHeight);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(128, 128, 128);
+      const footerImg = 'assets/footer.png'; 
+      doc.addImage(footerImg, 'PNG', 10, pageHeight - 40, pageWidth - 20, 20);
+      doc.save(`Payment_Receipt_${transaction.invoice.id}.pdf`);
+  }
+  
+    calculatePaymentAmount() {
+      this.paymentService.calculatePayment(this.invoiceId, this.discountType)
+        .subscribe(
+          (amount) => {
+            if (amount === null) {
+              this.toastr.error('Invoice not found!', 'Error');
+              return;
+            }
+            this.paymentAmount = amount;
+            this.toastr.success(`Payment Amount: ₹${amount.toFixed(2)}`, 'Success');
+          },
+          (error) => {
+            if (error.status === 404) {
+              this.toastr.error('Invoice not found! Please check the Invoice ID.', 'Error');
+            } else {
+              this.toastr.error('Something went wrong while fetching payment amount.', 'Error');
+            }
+            console.error('Error fetching payment amount:', error);
+          }
+        );
+    }
+      
   }
   
