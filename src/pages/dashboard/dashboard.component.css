@@ -147,13 +147,13 @@ body {
     border-collapse: collapse;
     background-color: white;
     overflow: hidden;
-    border: 1px solid #0033a0; /* Adding a border around the table */
+    border: 1px solid #0033a0; 
 }
 
 .user-table th, .user-table td {
     padding: 10px;
     text-align: left;
-    border: 1px solid #0033a0; /* Adding borders to each cell */
+    border: 1px solid #0033a0; 
 }
 
 .user-table th {
@@ -214,8 +214,6 @@ body {
   font-size: 14px;
 }
 
-
-/* Modal Overlay */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -229,31 +227,27 @@ body {
   z-index: 1000;
 }
 
-/* Modal Box */
 .popup-box {
   background: #fff;
   padding: 20px;
-  width: 500px; /* Increased width for better layout */
+  width: 500px; 
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Modal Header */
 .popup-box h4 {
   margin-top: 0;
   font-size: 20px;
   text-align: center;
 }
 
-/* Two-Column Layout */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  grid-template-columns: 1fr 1fr; 
   gap: 15px;
 }
 
-/* Form Fields */
 .form-column {
   display: flex;
   flex-direction: column;
@@ -263,11 +257,11 @@ body {
 .form-grid1 {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centers everything horizontally */
-  justify-content: center; /* Centers content vertically */
+  align-items: center; 
+  justify-content: center; 
   padding: 20px;
   width: 100%;
-  max-width: 400px; /* Adjust as needed */
+  max-width: 400px; 
   margin: auto;
 }
 
@@ -275,7 +269,7 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center-align all elements */
+  align-items: center; 
 }
 
 .form-column1 label {
@@ -291,8 +285,8 @@ body {
   border-radius: 5px;
   font-size: 16px;
   transition: border-color 0.3s ease-in-out;
-  width: 90%; /* Ensures input is not too wide */
-  max-width: 300px; /* Restricts max width for uniformity */
+  width: 90%; 
+  max-width: 300px; 
   text-align: center;
 }
 
@@ -305,7 +299,7 @@ body {
 /* Responsive Design */
 @media (min-width: 768px) {
   .form-grid1 {
-      max-width: 500px; /* Slightly wider on larger screens */
+      max-width: 500px; 
   }
 }
 
@@ -318,7 +312,6 @@ body {
   font-size: 14px;
 }
 
-/* Buttons */
 .form-button {
   display: flex;
   justify-content: center;
@@ -353,7 +346,6 @@ body {
   background: #c82333;
 }
 
-/* Fade-in Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -365,8 +357,6 @@ body {
   }
 }
 
-
-/* Bulk Upload Modal Overlay */
 .bulk-modal-overlay {
   position: fixed;
   top: 0;
@@ -380,7 +370,6 @@ body {
   z-index: 1000;
 }
 
-/* Modal Box */
 .bulk-modal-box {
   background: #ffffff;
   padding: 25px;
@@ -390,21 +379,18 @@ body {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Modal Title */
 .bulk-modal-box h4 {
   margin-bottom: 15px;
   font-size: 18px;
   font-weight: bold;
 }
 
-/* File Input Label */
 .bulk-label {
   display: block;
   font-weight: 600;
   margin-bottom: 8px;
 }
 
-/* File Input Field */
 .bulk-input-file {
   width: 100%;
   padding: 8px;
@@ -414,25 +400,13 @@ body {
   cursor: pointer;
 }
 
-/* Modal Buttons */
+
 .bulk-modal-buttons {
   margin-top: 15px;
   display: flex;
   justify-content: space-between;
 }
 
-/* Common Button Style */
-/* .bulk-btn {
-  padding: 10px 15px;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  border-radius: 5px;
-  font-weight: bold;
-  width: 48%;
-} */
-
-/* Upload Button */
 .upload-bulk-btn {
   background: #28a745;
   color: white;
@@ -444,7 +418,6 @@ body {
   background: #218838;
 }
 
-/* Cancel Button */
 .cancel-bulk-btn {
   background: #dc3545;
   color: white;
@@ -455,7 +428,6 @@ body {
   background: #c82333;
 }
 
-/* Modal Overlay */
 .invoice-modal-overlay {
   position: fixed;
   top: 0;
@@ -469,7 +441,6 @@ body {
   z-index: 1000;
 }
 
-/* Modal Box */
 .invoice-modal-box {
   background: #fff;
   width: 600px;
@@ -479,7 +450,6 @@ body {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Modal Header */
 .invoice-header {
   text-align: center;
   font-size: 1.5rem;
@@ -488,20 +458,19 @@ body {
   margin-bottom: 20px;
 }
 
-/* Form Grid */
+
 .invoice-form-grid {
   display: flex;
   gap: 15px;
 }
 
-/* Columns */
+
 .invoice-form-column {
   width: 50%;
   display: flex;
   flex-direction: column;
 }
 
-/* Input Fields */
 .invoice-input {
   width: 100%;
   padding: 8px;
@@ -513,14 +482,12 @@ body {
 
 }
 
-/* Buttons Container */
 .invoice-form-buttons {
   display: flex;
   justify-content: center;
   margin-top: 20px;
 }
 
-/* Buttons */
 .invoice-btn {
   padding: 10px 15px;
   font-size: 1rem;
@@ -550,7 +517,6 @@ body {
   background: #c82333;
 }
 
-/* Fade-in Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -564,42 +530,41 @@ body {
 
 .payment-container {
   width: 100%;
-  max-width: 1000px; /* Increased the container width */
+  max-width: 1000px; 
   margin: 20px auto;
-  padding: 30px; /* Increased padding for a more spacious look */
+  padding: 30px; 
   background-color: #f9f9f9;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Slightly increased the box-shadow for a softer look */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
 }
 
-/* Two-column layout for invoice details and payment section */
 .form-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 30px; /* Increased gap between columns */
+  gap: 30px; 
 }
 
 .form-column {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Increased the gap inside columns */
+  gap: 20px; 
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Increased gap for better spacing between label and input */
+  gap: 8px; 
 }
 
 .form-group label {
-  font-size: 16px; /* Increased font size */
+  font-size: 16px; 
   font-weight: bold;
   color: #333;
 }
 
 .form-control {
-  padding: 12px; /* Increased padding for larger input areas */
-  font-size: 16px; /* Increased font size for better readability */
+  padding: 12px; 
+  font-size: 16px; 
   border: 1px solid #ccc;
   border-radius: 4px;
   outline: none;
@@ -610,8 +575,8 @@ body {
 }
 
 button {
-  padding: 12px 24px; /* Increased padding for better button size */
-  font-size: 16px; /* Increased font size for better readability */
+  padding: 12px 24px; 
+  font-size: 16px; 
   background-color: #001f73;
   color: white;
   border: none;
@@ -619,11 +584,10 @@ button {
   cursor: pointer;
 }
 
-/* Grid layout for invoice details */
 .invoice-details-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px; /* Increased gap for better separation between items */
+  gap: 20px; 
 }
 
 .invoice-detail {
@@ -632,28 +596,27 @@ button {
 }
 
 .invoice-detail label {
-  font-size: 16px; /* Increased font size */
+  font-size: 16px; 
   font-weight: bold;
   color: #333;
 }
 
 .invoice-detail p {
-  font-size: 18px; /* Increased font size for readability */
+  font-size: 18px; 
   color: #555;
 }
 
-/* Styling the discount and payment sections */
 .discount-section,
 .payment-section {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Increased gap for better separation */
+  gap: 20px; 
 }
 
 .discount-section select,
 .payment-section input {
-  padding: 12px; /* Increased padding for better input areas */
-  font-size: 16px; /* Increased font size for readability */
+  padding: 12px; 
+  font-size: 16px; 
   border: 1px solid #ccc;
   border-radius: 4px;
 }
@@ -671,4 +634,105 @@ button {
     padding: 20px; 
   }
 }
+
+.success-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; 
+  height: 300px; 
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  padding: 30px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.success-content h2 {
+  font-size: 24px;
+  color: #28a745; 
+}
+
+.success-content p {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.checkmark-container {
+  width: 80px;
+  height: 80px;
+  background: #28a745;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.checkmark {
+  width: 40px;
+  height: 20px;
+  border: 5px solid white;
+  border-top: none;
+  border-right: none;
+  transform: rotate(45deg);
+}
+
+button {
+  background: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #218838;
+}
+
+
+.failure-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-40%, -40%);
+  width: 500px;
+  height:300px;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.failure-content h2 {
+  color: #d9534f;
+}
+
+.failure-content p {
+  color: #333;
+}
+
+.failure-content button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
 

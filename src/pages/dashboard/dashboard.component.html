@@ -10,6 +10,7 @@
               <li [class.active]="activeTab === 'employees'" (click)="activeTab = 'employees'"><i class="icon-user"></i> Manage Employees</li>
               <li [class.active]="activeTab === 'invoice'" (click)="activeTab = 'invoice'"><i class="icon-invoice"></i> Manage Invoice</li>
               <li [class.active]="activeTab === 'recipt'" (click)="activeTab = 'recipt'"><i class="icon-report"></i> Recipts</li>
+              <li [class.active]="activeTab === 'history'" (click)="activeTab = 'history'"><i class="icon-report"></i> History</li>
               <li (click)="logout()"><i class="icon-out"></i> Log out</li>
           </ul>
       </nav>
@@ -466,7 +467,7 @@
             <div class="form-column">
               <div class="form-group">
                 <label for="discountType">Apply Discount:</label>
-                <select id="discountType" [(ngModel)]="discountType" name="discountType" class="form-control" (ngModelChange)="calculatePaymentAmount()" >
+                <select id="discountType" [(ngModel)]="discountType" name="discountType" class="form-control" (ngModelChange)="calculatePaymentAmount()" required>
                   <option value="beforeDuedate">Before Due Date</option>
                   <option value="afterDueDate">After Due Date</option>
                 </select>
@@ -474,7 +475,7 @@
               
               <div class="form-group">
                 <label for="paymentAmount">Amount to Pay:</label>
-                <input type="number" id="paymentAmount" [(ngModel)]="paymentAmount" name="paymentAmount" required class="form-control" placeholder="Amount to Pay" [readonly]="true" />
+                <input type="number" id="paymentAmount" [(ngModel)]="paymentAmount" name="paymentAmount" required class="form-control" placeholder="Amount to Pay" [readonly]="true" required/>
               </div>
               
               <div class="form-group">
@@ -483,6 +484,67 @@
             </div>
           </div>
         </form>
+
+        
+        <!-- Success Modal -->
+        <div *ngIf="showSuccessModal" class="success-modal animate__animated animate__zoomIn">
+          <div class="success-content">
+            <!-- <div class="checkmark-container">
+              <div class="checkmark animate__animated animate__bounceIn animate__delay-1s"></div>
+            </div> -->
+            <h2>Payment Received</h2>
+            <p>Your payment was successful!</p>
+            <button (click)="closeSuccessModal()">OK</button>
+          </div>
+        </div>
+
       </div>
+    
+      <div class="manage-users-container" *ngIf="activeTab === 'history'">
+        <div class="top-controls">
+          <input type="text" [(ngModel)]="searchQuery2" placeholder="Search Transaction History..." class="search-bar" />
+          <div class="buttons">
+            <button class="add-btn" (click)="downloadTransactionPDF()">Download</button>
+          </div>
+        </div><br>       
+        
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>Transaction ID</th>
+              <th>Invoice ID</th>
+              <th>Service Connection No</th>
+              <th>Total Amount</th>
+              <th>Discount Type</th>
+              <th>Amount Paid</th>
+              <th>Payment Method</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let transaction of filteredTransactions">
+              <td>{{ transaction.transactionId }}</td>
+              <td>{{ transaction.invoice.id }}</td>
+              <td>{{ transaction.invoice.serviceConnectionNumber }}</td>
+              <td>{{ transaction.totalAmount | currency:'INR' }}</td>
+              <td>{{ transaction.discountType }}</td>
+              <td>{{ transaction.amountPaid | currency:'INR' }}</td>
+              <td>{{ transaction.paymentMethod }}</td>
+              <td [ngClass]="{'paid': transaction.transactionStatus === 'Paid', 'not-paid': transaction.transactionStatus === 'Not Paid'}">
+                {{ transaction.transactionStatus }}
+              </td>
+              <td>{{ transaction.transactionDate | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+      
+        <div class="pagination-controls">
+          <button (click)="changePage3(currentPage3 - 1)" [disabled]="currentPage3 === 0">Previous</button>
+          <span>Page {{ currentPage3 + 1 }} of {{ totalPages3 }}</span>
+          <button (click)="changePage3(currentPage3 + 1)" [disabled]="currentPage3 === totalPages3 - 1">Next</button>
+        </div>
+      </div>     
   </main>
 </div>

@@ -11,7 +11,8 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import 'jspdf-autotable';
 import { PaymentService } from '../../services/payment.service';
-import { TransactionService } from '../../services/transaction.service';
+import { Transaction, TransactionService } from '../../services/transaction.service';
+import { Router } from '@angular/router';
 
   @Component({
     selector: 'app-dashboard',
@@ -21,47 +22,7 @@ import { TransactionService } from '../../services/transaction.service';
   })
   export class DashboardComponent {
 
-    activeTab: string = 'home'; 
-
-    homeData = { users: 0 , bills: 0};
-   
-    fetchUserCount() {
-      this.userService.getUserCount().subscribe((data) => {
-        this.homeData.users = data;
-        console.log(this.homeData.users);
-      });
-    }
-
-    fetchBillCount() {
-      this.invoiceService.getBillCount().subscribe((data) => {
-        this.homeData.bills = data;
-        console.log(this.homeData.bills);
-      });
-    }
-    
-
-    constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService,private paymentService: PaymentService,private transactionService: TransactionService) {}
-
-    showHome() {
-      this.activeTab = 'home';
-    }
-
-    logout() {
-      console.log('User logged out');
-      // Handle logout logic here
-    }
-
-    users: any[] = [];
-    employees: any[] = [];
-    searchQuery: string = '';
-    currentPage: number = 0;
-    pageSize: number = 5;
-
-    searchQuery1: string = '';
-    currentPage1: number = 0;
-    pageSize1: number = 5;
-
-
+    constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService,private paymentService: PaymentService,private transactionService: TransactionService,private router: Router) {}
 
     ngOnInit() {
       this.fetchUsers();
@@ -70,7 +31,46 @@ import { TransactionService } from '../../services/transaction.service';
       this.fetchBillCount();
       this.setBillDates();
       this.fetchUserCount();
+      this.fetchTransactions();
     }
+
+    activeTab: string = 'home'; 
+    homeData = { users: 0 , bills: 0};
+    fetchUserCount() {
+      this.userService.getUserCount().subscribe((data) => {
+        this.homeData.users = data;
+        console.log(this.homeData.users);
+      });
+    }
+    fetchBillCount() {
+      this.invoiceService.getBillCount().subscribe((data) => {
+        this.homeData.bills = data;
+        console.log(this.homeData.bills);
+      });
+    }
+    
+    showHome() {
+      this.activeTab = 'home';
+    }
+
+    logout() {
+      const confirmLogout = window.confirm('Are you sure you want to log out?');
+      if (confirmLogout) {
+        console.log('User logged out');
+        localStorage.removeItem('authToken'); 
+        sessionStorage.removeItem('authToken'); 
+        this.router.navigate(['/login']);
+      }
+    }
+    
+    users: any[] = [];
+    employees: any[] = [];
+    searchQuery: string = '';
+    currentPage: number = 0;
+    pageSize: number = 5;
+    searchQuery1: string = '';
+    currentPage1: number = 0;
+    pageSize1: number = 5;
 
     fetchUsers() {
       this.userService.getUsers().subscribe(data => {
@@ -232,7 +232,7 @@ import { TransactionService } from '../../services/transaction.service';
 
     closeBulkUploadModal() {
       this.showBulkUploadModal = false;
-      this.selectedFile = null; // Reset file selection
+      this.selectedFile = null; 
     }
 
     handleFileInput(event: any) {
@@ -254,34 +254,28 @@ import { TransactionService } from '../../services/transaction.service';
     
       const formData = new FormData();
       formData.append("file", this.selectedFile);
-      console.log("Uploading file:", this.selectedFile.name); // ✅ Debugging
+      console.log("Uploading file:", this.selectedFile.name); 
     
       this.userService.uploadCustomers(formData).subscribe(
         (response: any) => {
-          console.log("Upload Success:", response); // ✅ Debugging
+          console.log("Upload Success:", response); 
           this.toastr.success(response.message || "File uploaded successfully!", "Success");
           this.fetchUsers();
           this.closeBulkUploadModal();
         },
         (error: any) => {
-          console.error("Upload Error:", error); // ✅ Debugging
-    
-          // Default error message
+          console.error("Upload Error:", error); 
           let errorMessage = "Error uploading file! Please try again.";
-    
           if (error.error && error.error.message) {
             const backendMessage = error.error.message;
-    
             if (backendMessage.includes("Duplicate entry")) {
-              // Extract duplicate entry details
               const match = backendMessage.match(/Duplicate entry '(.*?)'/);
               const duplicateEntry = match ? match[1] : "Unknown";
-    
               errorMessage = `Customer ID '${duplicateEntry}' is already registered. Please check your file for duplicates before uploading.`;
             } else if (backendMessage.includes("constraint")) {
               errorMessage = "Data integrity issue detected! Please check that the CSV file does not contain conflicting or missing values.";
             } else {
-              errorMessage = backendMessage; // Use backend message for other cases
+              errorMessage = backendMessage; 
             }
           } else if (error.status === 400) {
             errorMessage = "Bad Request! Please check your CSV format.";
@@ -295,8 +289,6 @@ import { TransactionService } from '../../services/transaction.service';
         }
       );
     }
-    
-    
     
     customers: any[] = [];
     showEditCustomerModal: boolean = false;
@@ -381,10 +373,10 @@ import { TransactionService } from '../../services/transaction.service';
 
     showInvoiceModal: boolean = false;
     serviceConnectionNumber: string = '';
-    customer: any = {}; // Stores fetched customer details
+    customer: any = {}; 
     unitsConsumed: number = 0;
     totalAmount: number = 0;
-    billGeneratedDate: string = new Date().toISOString().split('T')[0]; // Current date
+    billGeneratedDate: string = new Date().toISOString().split('T')[0]; 
     dueDate: string = '';
     totalConsumed: number = 0;
 
@@ -421,7 +413,7 @@ import { TransactionService } from '../../services/transaction.service';
   
     setBillDates() {
       const today = new Date();
-      this.billGeneratedDate = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+      this.billGeneratedDate = today.toISOString().split('T')[0]; 
   
       const due = new Date();
       due.setDate(today.getDate() + 10);
@@ -513,7 +505,7 @@ import { TransactionService } from '../../services/transaction.service';
     downloadUserPDF() {
       const doc = new jsPDF({ orientation: 'landscape' });
       const pageWidth = doc.internal.pageSize.getWidth();
-      const headerImg = 'assets/header.png'; // Replace with actual path
+      const headerImg = 'assets/header.png'; 
       doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 15);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
@@ -531,7 +523,7 @@ import { TransactionService } from '../../services/transaction.service';
         headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
         alternateRowStyles: { fillColor: [240, 240, 240] },
       });
-      const footerImg = 'assets/footer.png'; // Replace with actual path
+      const footerImg = 'assets/footer.png'; 
       const pageHeight = doc.internal.pageSize.getHeight();
       doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 15);
       doc.save('Customer_Data.pdf');
@@ -601,12 +593,11 @@ import { TransactionService } from '../../services/transaction.service';
     
     showEditInvoiceModal = false;
     selectedInvoice: any = {};
-    enteredPassword: string = ''; // Stores user-entered password
-    correctPassword: string = '1234'; // Change this to the actual password or fetch from backend
-
+    enteredPassword: string = ''; 
+    correctPassword: string = '1234'; 
     editInvoice(invoice: any) {
 
-      const userPassword = prompt('Enter password to edit invoice:'); // Prompt user for password
+      const userPassword = prompt('Enter password to edit invoice:'); 
       if (userPassword === this.correctPassword) {
         this.selectedInvoice = { ...invoice }; 
         this.setBillDates();
@@ -626,7 +617,7 @@ import { TransactionService } from '../../services/transaction.service';
       this.invoiceService.updateInvoice(this.selectedInvoice).subscribe(
         (response) => {
           this.toastr.success("Invoice updated successfully!");
-          this.fetchInvoices(); // Refresh the invoice list
+          this.fetchInvoices();
           console.log(this.selectedInvoice);
           this.showEditInvoiceModal = false;
         },
@@ -695,17 +686,15 @@ import { TransactionService } from '../../services/transaction.service';
       doc.save(`Invoice_${invoice.id}.pdf`);
     }
 
-    invoiceId!: string; // Assert that invoiceId will be initialized
-    invoiceDetails!: any; // Assert that invoiceDetails will be initialized
+    invoiceId!: string; 
+    invoiceDetails!: any;
     paymentAmount!: number;
     discountType: string = '';
 
-    // Simulate fetching invoice details from a backend
     fetchInvoiceDetails() {
       if (this.invoiceId) {
         this.invoiceService.getInvoiceDetails(this.invoiceId).subscribe(
           (data: any) => {
-            console.log(data);
             this.invoiceDetails = data;
           },
           (error) => {
@@ -715,28 +704,35 @@ import { TransactionService } from '../../services/transaction.service';
       }
     }
 
+    showSuccessModal: boolean = false;
+    lastTransactionResponse: any;
+
     submitPaymentForm() {
       const transaction = {
         invoice: { id: this.invoiceId },
-        totalAmount: this.totalAmount,
+        totalAmount: this.invoiceDetails?.totalAmount || 0,
         discountType: this.discountType,
         amountPaid: this.paymentAmount,
         paymentMethod: 'CASH',
         transactionStatus: 'SUCCESS',
       };
-  
       this.transactionService.saveTransaction(transaction).subscribe(
         (response) => {
-          this.toastr.success('Payment Successful!', 'Success');
-          console.log('Transaction Saved:', response);
-          this.downloadPaymentBill(response);
-          this.resetFormTransaction();
+          this.lastTransactionResponse = response;
+          this.showSuccessModal = true;
         },
-        (error) => {
-          this.toastr.error('Payment Failed!', 'Error');
+        (error) => {   
+          this.toastr.error('Payment Failed! Please try again.', 'Error');
+          this.resetFormTransaction();
           console.error('Transaction Error:', error);
         }
       );
+    }
+
+    closeSuccessModal() {
+      this.showSuccessModal = false;
+      this.downloadPaymentBill(this.lastTransactionResponse);
+      this.resetFormTransaction();
     }
   
     resetFormTransaction() {
@@ -744,7 +740,6 @@ import { TransactionService } from '../../services/transaction.service';
         this.totalAmount = 0;  
         this.discountType = '';  
         this.paymentAmount = 0;   
-        this.fetchInvoiceDetails(); 
         window.location.reload();
     }
     
@@ -813,7 +808,47 @@ import { TransactionService } from '../../services/transaction.service';
             console.error('Error fetching payment amount:', error);
           }
         );
+    } 
+    
+    searchQuery2: string = '';
+    currentPage3: number = 0;
+    totalPages3: number = 1;
+    transactions: Transaction[] = [];
+    filteredTransactions: Transaction[] = [];
+
+    changePage3(page: number) {
+      if (page >= 0 && page < this.totalPages3) {
+        this.currentPage3 = page;
+      }
     }
-      
-  }
+
+    FilterTransactions(): void {
+      let filtered = this.transactions.filter(transaction =>
+        transaction.invoice.serviceConnectionNumber.includes(this.searchQuery2) ||
+        transaction.transactionId.toString().includes(this.searchQuery2) ||
+        transaction.invoice.id.toString().includes(this.searchQuery2) ||
+        transaction.transactionStatus.toLowerCase().includes(this.searchQuery2.toLowerCase())
+      );
+
+      this.totalPages3 = Math.ceil(filtered.length / this.pageSize);
+      this.filteredTransactions = filtered.slice(this.currentPage3 * this.pageSize, (this.currentPage3 + 1) * this.pageSize);
+    }
+
+    downloadTransactionPDF() {
+      console.log('Downloading transaction PDF...');
+    }
+
+    fetchTransactions(): void {
+      this.transactionService.getAllTransactions().subscribe(
+        (data) => {
+          console.log(data);
+          this.transactions = data;
+          this.FilterTransactions();
+        },
+        (error) => {
+          console.error('Error fetching transactions:', error);
+        }
+      );
+    }
+}
   

@@ -1,7 +1,7 @@
 export interface Invoice {
     id: number;
-    serviceConnectionNumber: string;  // ✅ Change this to match API
-    user?: { id: number };  // ✅ Optional in case user is missing
+    serviceConnectionNumber: string;  
+    user?: { id: number };  
     unitsConsumed: number;
     totalAmount: number;
     billGeneratedDate: string;
