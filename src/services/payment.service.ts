@@ -23,4 +23,9 @@ export class PaymentService {
         })
       );
   }
+
+  
+  getTodayAmount(): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/today-amount`);
+  }
 }

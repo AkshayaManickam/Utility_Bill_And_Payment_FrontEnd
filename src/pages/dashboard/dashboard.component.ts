@@ -13,6 +13,7 @@ import 'jspdf-autotable';
 import { PaymentService } from '../../services/payment.service';
 import { Transaction, TransactionService } from '../../services/transaction.service';
 import { Router } from '@angular/router';
+import { HelpServiceService } from '../../services/help-service.service';
 
   @Component({
     selector: 'app-dashboard',
@@ -21,8 +22,9 @@ import { Router } from '@angular/router';
     styleUrl: './dashboard.component.css'
   })
   export class DashboardComponent {
+    selectedRequestId: any;
 
-    constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService,private paymentService: PaymentService,private transactionService: TransactionService,private router: Router) {}
+    constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService,private paymentService: PaymentService,private transactionService: TransactionService,private router: Router,private helpService:HelpServiceService) {}
 
     ngOnInit() {
       this.fetchUsers();
@@ -31,24 +33,35 @@ import { Router } from '@angular/router';
       this.fetchBillCount();
       this.setBillDates();
       this.fetchUserCount();
+      this.loadHelpRequests()
       this.fetchTransactions();
+      this.fetchTodayAmountReceived();
     }
 
     activeTab: string = 'home'; 
-    homeData = { users: 0 , bills: 0};
+    homeData = { users: 0 , bills: 0, amount:0};
+
     fetchUserCount() {
       this.userService.getUserCount().subscribe((data) => {
         this.homeData.users = data;
         console.log(this.homeData.users);
       });
     }
+
     fetchBillCount() {
       this.invoiceService.getBillCount().subscribe((data) => {
         this.homeData.bills = data;
         console.log(this.homeData.bills);
       });
     }
-    
+
+    fetchTodayAmountReceived() {
+      this.paymentService.getTodayAmount().subscribe((data) => {
+        this.homeData.amount = data;
+        console.log("Today's Amount Received:", this.homeData.amount);
+      });
+    }
+
     showHome() {
       this.activeTab = 'home';
     }
@@ -850,5 +863,76 @@ import { Router } from '@angular/router';
         }
       );
     }
+
+  helpRequests: any[] = [];
+  loadHelpRequests(): void {
+      console.log("Help");
+      this.helpService.getAllHelpRequests().subscribe(
+        (data) => {
+          console.log(data);
+          console.log('Fetched Help Requests:', data);
+          this.helpRequests = data;
+        },
+        (error) => {
+          console.error('Error fetching help requests:', error);
+        }
+      );
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'SENT':
+        return 'status-sent';
+      case 'RECEIVED':
+        return 'status-received';
+      case 'IN_PROGRESS':
+        return 'status-in-progress';
+      case 'COMPLETED':
+        return 'status-completed';
+      default:
+        return '';
+    }
+  }
+
+  isModalOpen: boolean = false;
+  selectedRequest: any = null;
+  selectedStatus: string = '';
+
+  openModal(request: any): void {
+    this.selectedRequestId = request.id; 
+    this.selectedRequest = request;
+    this.selectedStatus = request.status; // Preselect current status
+    this.isModalOpen = true;
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedRequest = null;
+  }
+
+  updateStatus() {
+    if (!this.selectedRequestId) {  
+      this.toastr.warning("No request selected!", "Warning"); 
+      return;
+    }
+  
+    if (!this.selectedStatus) {  
+      this.toastr.warning("Please select a status!", "Warning"); 
+      return;
+    }
+  
+    this.helpService.updateHelpStatus(this.selectedRequestId, this.selectedStatus).subscribe(
+      (response) => {
+        this.toastr.success("Status updated successfully!", "Success");
+        this.closeModal();
+        this.loadHelpRequests(); // Refresh table after update
+      },
+      (error) => {
+        console.error("Error updating status:", error);
+        this.toastr.error("Failed to update status. Please try again!", "Error");
+      }
+    );
+  }
+
 }
   

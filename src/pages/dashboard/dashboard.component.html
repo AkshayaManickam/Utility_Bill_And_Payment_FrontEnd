@@ -1,6 +1,6 @@
 <div class="dashboard">
   <aside class="sidebar">
-      <div class="logo">BCC - Ops</div>
+      <div class="logo">BBC - Ops</div>
       <nav>
           <ul>
               <li [class.active]="activeTab === 'home'" (click)="showHome()">
@@ -11,6 +11,7 @@
               <li [class.active]="activeTab === 'invoice'" (click)="activeTab = 'invoice'"><i class="icon-invoice"></i> Manage Invoice</li>
               <li [class.active]="activeTab === 'recipt'" (click)="activeTab = 'recipt'"><i class="icon-report"></i> Recipts</li>
               <li [class.active]="activeTab === 'history'" (click)="activeTab = 'history'"><i class="icon-report"></i> History</li>
+              <li [class.active]="activeTab === 'help'" (click)="activeTab = 'help'"><i class="icon-report"></i> Help</li>
               <li (click)="logout()"><i class="icon-out"></i> Log out</li>
           </ul>
       </nav>
@@ -18,7 +19,7 @@
 
   <main class="content">
       <header class="topbar">       
-          <a href="#" class="pro-version" style="color:#001f73;">BCC Operational Official Home page</a>
+          <a href="#" class="pro-version" style="color:#001f73;">BBC Operational Official Home page</a>
           <div class="profile-icon"></div>
       </header><br>
 
@@ -37,7 +38,7 @@
               </div>
               <div class="card">
                   <p>Amount Received Today</p>
-                  <h3>₹{{ homeData.users }}</h3>
+                  <h3>₹{{ homeData.amount }}</h3>
               </div>
           </div> 
       </section>
@@ -138,7 +139,7 @@
                 <input [(ngModel)]="selectedCustomer.address" class="form-control" readonly>
 
                 <label>Start Date</label>
-                <input [(ngModel)]="selectedCustomer.startDate" type="date" class="form-control" readonly>
+                <input [(ngModel)]="selectedCustomer.startDate" type="" class="form-control" readonly>
               </div>
             </div>
 
@@ -484,15 +485,14 @@
             </div>
           </div>
         </form>
-
-        
         <!-- Success Modal -->
         <div *ngIf="showSuccessModal" class="success-modal animate__animated animate__zoomIn">
           <div class="success-content">
             <!-- <div class="checkmark-container">
               <div class="checkmark animate__animated animate__bounceIn animate__delay-1s"></div>
             </div> -->
-            <h2>Payment Received</h2>
+            <img src="https://i.pinimg.com/originals/32/b6/f2/32b6f2aeeb2d21c5a29382721cdc67f7.gif" alt="img" width="100px" height="100px">
+            <h2 >Payment Received</h2>
             <p>Your payment was successful!</p>
             <button (click)="closeSuccessModal()">OK</button>
           </div>
@@ -545,6 +545,60 @@
           <span>Page {{ currentPage3 + 1 }} of {{ totalPages3 }}</span>
           <button (click)="changePage3(currentPage3 + 1)" [disabled]="currentPage3 === totalPages3 - 1">Next</button>
         </div>
-      </div>     
+      </div> 
+      
+      <div *ngIf="activeTab === 'help'" class="payment-container">
+        <div class="help-table-container" >
+          <h2 style="color: #001f73;font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">History</h2>
+          <div *ngIf="helpRequests.length === 0" class="no-requests">
+            No requests found.
+          </div>
+          <table class="help-table" *ngIf="helpRequests.length > 0">
+              <thead>
+                  <tr>
+                      <th>ID</th>
+                      <th>Email</th>
+                      <th>Query Type</th>
+                      <th>Old Value</th>
+                      <th>New Value</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr *ngFor="let request of helpRequests">
+                      <td>{{ request.id }}</td>
+                      <td>{{ request.userMail }}</td>
+                      <td>{{ request.query }}</td>
+                      <td>{{ request.oldValue || 'N/A' }}</td>
+                      <td>{{ request.newValue || 'N/A' }}</td>
+                      <td [ngClass]="getStatusClass(request.status)">{{ request.status }}</td>
+                      <td>
+                        <button class="edit-btn" (click)="openModal(request)" ><i class="fas fa-edit"></i></button>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+          <!-- Modal Overlay -->
+          <div class="custom-modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
+
+          <!-- Status Update Modal -->
+          <div class="custom-status-modal" *ngIf="isModalOpen">
+            <h3 class="custom-modal-title">Update Status</h3>
+
+            <label for="customStatusSelect" class="custom-modal-label">Select New Status:</label>
+            <select id="customStatusSelect" class="custom-modal-select" [(ngModel)]="selectedStatus">
+              <option value="RECEIVED">RECEIVED</option>
+              <option value="IN_PROGRESS">IN_PROGRESS</option>
+              <option value="COMPLETED">COMPLETED</option>
+            </select>
+
+            <div class="custom-modal-buttons">
+              <button class="custom-update-btn" (click)="updateStatus()">Update</button>
+              <button class="custom-close-btn" (click)="closeModal()">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
   </main>
 </div>

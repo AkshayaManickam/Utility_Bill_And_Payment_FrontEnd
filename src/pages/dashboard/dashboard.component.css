@@ -9,6 +9,7 @@ body {
     display: flex;
   }
   
+  
   .sidebar {
     width: 250px;
     background: #001f73;
@@ -656,7 +657,7 @@ button {
 
 .success-content h2 {
   font-size: 24px;
-  color: #28a745; 
+  color: #001f73;
 }
 
 .success-content p {
@@ -685,7 +686,6 @@ button {
 }
 
 button {
-  background: #28a745;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -694,8 +694,191 @@ button {
   font-size: 16px;
 }
 
-button:hover {
-  background: #218838;
+.help-container {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
+
+.help-container h2 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.help-form .form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.help-form label {
+  font-weight: bold;
+  color: #555;
+}
+
+.help-form .form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.help-form select {
+  cursor: pointer;
+}
+
+.help-btn {
+  width: 100%;
+  padding: 10px;
+  background: #001f73;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.help-btn:hover {
+  background: #001f73;
+}
+
+.help-table-container {
+  margin-top: 20px;
+}
+
+.help-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.help-table th, .help-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.help-table th {
+  background-color: #f4f4f4;
+}
+
+.status-sent {
+  color: orange;
+  font-weight: bold;
+}
+
+.status-received {
+  color: blue;
+  font-weight: bold;
+}
+
+.status-in-progress {
+  color: purple;
+  font-weight: bold;
+}
+
+.status-completed {
+  color: green;
+  font-weight: bold;
+}
+
+/* ====== Modal Overlay ====== */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+
+/* ====== Status Modal ====== */
+.custom-status-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+  width: 320px;
+  text-align: center;
+}
+
+/* Modal Title */
+.custom-modal-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #004085;
+  margin-bottom: 15px;
+}
+
+/* Modal Label */
+.custom-modal-label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* Dropdown Select */
+.custom-modal-select {
+  width: 100%;
+  padding: 8px;
+  color: #001f73;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  background: #f9f9f9;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+/* Modal Buttons */
+.custom-modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Update Button */
+.custom-update-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.custom-update-btn:hover {
+  background-color: #218838;
+}
+
+/* Close Button */
+.custom-close-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.custom-close-btn:hover {
+  background-color: #c82333;
+}
+
+
+
+
 
 
