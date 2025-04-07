@@ -19,7 +19,7 @@
 
   <main class="content">
       <header class="topbar">       
-          <a href="#" class="pro-version" style="color:#001f73;">BBC Operational Official Home page</a>
+          <a href="#" class="pro-version" style="color:#001f73;">BBC Operational Official Dashboard</a>
           <div class="profile-icon"></div>
       </header><br>
 
@@ -237,6 +237,9 @@
 
                 <label>Email</label>
                 <input [(ngModel)]="newEmployee.email" type="email" class="form-control" required>
+
+                <label>Location</label>
+                <input [(ngModel)]="newEmployee.location" type="text" class="form-control" required>
           
               </div>
             </div>
@@ -288,6 +291,7 @@
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
+              <th>Location</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -297,6 +301,7 @@
               <td>{{ employees.name }}</td>
               <td>{{ employees.email }}</td>
               <td>{{ employees.phone }}</td>
+              <td>{{ employees.location }}</td>
               <td>
                 <button class="edit-btn" (click)="editEmployee(employees)"><i class="fas fa-edit"></i></button>
                 <button class="delete-btn" (click)="deleteEmployee(employees)"><i class="fas fa-trash"></i></button>
@@ -579,6 +584,7 @@
                       <th>Old Value</th>
                       <th>New Value</th>
                       <th>Status</th>
+                      <th>Assigned To</th>
                       <th>Action</th>
                   </tr>
               </thead>
@@ -590,8 +596,23 @@
                       <td>{{ request.oldValue || 'N/A' }}</td>
                       <td>{{ request.newValue || 'N/A' }}</td>
                       <td [ngClass]="getStatusClass(request.status)">{{ request.status }}</td>
+                      <td>{{ request.assignedTo}}</td>
                       <td>
-                        <button class="edit-btn" (click)="openModal(request)" [disabled]="request.status === 'COMPLETED'"><i class="fas fa-edit"></i></button>
+                        <button 
+                          class="edit-btn" 
+                          (click)="openModal(request)" 
+                          [disabled]="request.status === 'COMPLETED' || request.assignedTo !== loggedInEmployeeId">
+                          <i 
+                            *ngIf="!(request.status === 'COMPLETED' || request.assignedTo !== loggedInEmployeeId)" 
+                            class="fas fa-edit">
+                           </i>
+                    
+                          <!-- Show lock icon if button is disabled -->
+                          <i 
+                            *ngIf="request.status === 'COMPLETED' || request.assignedTo !== loggedInEmployeeId" 
+                            class="fas fa-lock text-muted">
+                          </i>
+                        </button>
                       </td>
                   </tr>
               </tbody>

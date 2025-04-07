@@ -59,7 +59,7 @@ export class LoginComponent {
     }
   }
 
-  
+
   verifyOtp() {
     if (this.otpForm.valid) {
       const enteredOtp = this.otpForm.value.otp;
@@ -67,7 +67,9 @@ export class LoginComponent {
         (response) => {
           if (response.valid) {
             this.toastr.success('Login successful!', 'Success');
+            console.log('OTP Response:', response);
             localStorage.setItem('authToken', response.authToken); 
+            localStorage.setItem('employeeId', response.employeeId);
             this.router.navigate(['/dashboard']);
           } else {
             this.toastr.error('Invalid OTP! Try Again.', 'Error');

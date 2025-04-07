@@ -29,6 +29,11 @@ import { BrowserModule } from '@angular/platform-browser';
     constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService,private paymentService: PaymentService,private transactionService: TransactionService,private router: Router,private helpService:HelpServiceService) {}
 
     ngOnInit() {
+      const empId = localStorage.getItem('employeeId');
+      if (!empId) {
+        console.error('Employee ID not found in localStorage!');
+      }
+      this.loggedInEmployeeId = empId || '';
       this.fetchUsers();
       this.fetchEmployees();
       this.fetchInvoices();
@@ -40,6 +45,7 @@ import { BrowserModule } from '@angular/platform-browser';
       this.fetchTodayAmountReceived();
     }
 
+    loggedInEmployeeId: string = '';
     activeTab: string = 'home'; 
     homeData = { users: 0 , bills: 0, amount:0};
 
