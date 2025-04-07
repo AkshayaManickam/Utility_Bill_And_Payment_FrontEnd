@@ -53,50 +53,60 @@
           </div>
         </div><br>
 
-        <div *ngIf="showAddCustomerModal" class="popup-overlay">
-          <div class="popup-box">
-            <h4>Add Customer</h4>
-        
+      <div *ngIf="showAddCustomerModal" class="popup-overlay">
+        <div class="popup-box">
+          <h4>Add Customer</h4>
+
+          <form #customerForm="ngForm" (ngSubmit)="saveCustomer()" novalidate>
             <!-- Two-column layout -->
             <div class="form-grid">
               <!-- Left Column -->
               <div class="form-column">
                 <label>Customer ID</label>
-                <input [(ngModel)]="newCustomer.customerId" class="form-control" required>
+                <input [(ngModel)]="newCustomer.customerId" name="customerId" class="form-control" required>
 
                 <label>Name</label>
-                <input [(ngModel)]="newCustomer.name" class="form-control" required>  
-        
+                <input [(ngModel)]="newCustomer.name" name="name" class="form-control" required>  
+
                 <label>Service Connection No</label>
-                <input [(ngModel)]="newCustomer.serviceConnectionNo" class="form-control" required>
-        
+                <input [(ngModel)]="newCustomer.serviceConnectionNo" name="serviceConnectionNo" class="form-control" required>
+
                 <label>Email</label>
-                <input [(ngModel)]="newCustomer.email" type="email" class="form-control" required>
-        
-                
+                <input [(ngModel)]="newCustomer.email" name="email" type="email" class="form-control"
+                      required email #emailRef="ngModel">
+                <div *ngIf="emailRef.invalid && emailRef.touched" class="error-message">
+                  <small *ngIf="emailRef.errors?.['required']">Email is required.</small>
+                  <small *ngIf="emailRef.errors?.['email']">Please enter a valid email address.</small>
+                </div>
               </div>
-        
+
               <!-- Right Column -->
               <div class="form-column">
                 <label>Phone</label>
-                <input [(ngModel)]="newCustomer.phone" type="tel" class="form-control" required>
+                <input [(ngModel)]="newCustomer.phone" name="phone" type="tel" class="form-control"
+                      required pattern="^[0-9]{10}$" #phoneRef="ngModel">
+                <div *ngIf="phoneRef.invalid && phoneRef.touched" class="error-message">
+                  <small *ngIf="phoneRef.errors?.['required']">Phone number is required.</small>
+                  <small *ngIf="phoneRef.errors?.['pattern']">Phone number must be 10 digits.</small>
+                </div>
 
                 <label>Address</label>
-                <textarea [(ngModel)]="newCustomer.address" class="form-control" required></textarea>
-        
+                <textarea [(ngModel)]="newCustomer.address" name="address" class="form-control" required></textarea>
+
                 <label>Start Date</label>
-                <input [(ngModel)]="newCustomer.startDate" type="date" class="form-control" required>
+                <input [(ngModel)]="newCustomer.startDate" name="startDate" type="date" class="form-control" required>
               </div>
             </div>
-        
+
             <!-- Buttons -->
             <div class="form-button">
-              <button class="btn save-btn" (click)="saveCustomer()">Save</button>
-              <button class="btn cancel-btn" (click)="closeAddCustomerModal()">Cancel</button>
+              <button type="submit" class="btn save-btn" [disabled]="customerForm.invalid">Save</button>
+              <button type="button" class="btn cancel-btn" (click)="closeAddCustomerModal()">Cancel</button>
             </div>
-          </div>
+          </form>
         </div>
-        
+      </div>
+
 
         <div *ngIf="showBulkUploadModal" class="bulk-modal-overlay">
           <div class="bulk-modal-box">
@@ -111,6 +121,13 @@
             </div>
           </div>
         </div>   
+
+        <!-- Loader -->
+        <div *ngIf="isUploading" class="loader-container">
+          <div class="spinner"></div>
+          <p>Uploading, please wait...</p>
+        </div>
+
         
           <!-- Edit Employee Modal -->
         <div *ngIf="showEditCustomerModal" class="popup-overlay">
@@ -121,7 +138,7 @@
               <!-- Left Column -->
               <div class="form-column">
                 <label>Customer ID</label>
-                <input [(ngModel)]="selectedCustomer.id" class="form-control" readonly>
+                <input [(ngModel)]="selectedCustomer.customerId" class="form-control" readonly>
 
                 <label>Name</label>
                 <input [(ngModel)]="selectedCustomer.name" class="form-control" required>
@@ -241,7 +258,7 @@
               <!-- Left Column -->
               <div class="form-column1">
                 <label>Employee ID</label>
-                <input [(ngModel)]="selectedEmployee.id" class="form-control" readonly>
+                <input [(ngModel)]="selectedEmployee.employeeId" class="form-control" readonly>
 
                 <label>Name</label>
                 <input [(ngModel)]="selectedEmployee.name" class="form-control" required>
@@ -574,7 +591,7 @@
                       <td>{{ request.newValue || 'N/A' }}</td>
                       <td [ngClass]="getStatusClass(request.status)">{{ request.status }}</td>
                       <td>
-                        <button class="edit-btn" (click)="openModal(request)" ><i class="fas fa-edit"></i></button>
+                        <button class="edit-btn" (click)="openModal(request)" [disabled]="request.status === 'COMPLETED'"><i class="fas fa-edit"></i></button>
                       </td>
                   </tr>
               </tbody>

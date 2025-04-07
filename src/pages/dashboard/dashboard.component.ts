@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Chart } from 'chart.js/auto';
 import { UserService } from '../../services/user.service';
 import { ToastrService } from 'ngx-toastr';
@@ -14,10 +14,12 @@ import { PaymentService } from '../../services/payment.service';
 import { Transaction, TransactionService } from '../../services/transaction.service';
 import { Router } from '@angular/router';
 import { HelpServiceService } from '../../services/help-service.service';
+import { BrowserModule } from '@angular/platform-browser';
 
   @Component({
     selector: 'app-dashboard',
     imports: [CommonModule,FormsModule],
+    standalone: true,
     templateUrl: './dashboard.component.html',
     styleUrl: './dashboard.component.css'
   })
@@ -238,6 +240,8 @@ import { HelpServiceService } from '../../services/help-service.service';
 
     showBulkUploadModal = false;
     selectedFile: File | null = null;
+    isUploading: boolean = false;
+
 
     openBulkUploadModal() {
       this.showBulkUploadModal = true;
@@ -260,40 +264,40 @@ import { HelpServiceService } from '../../services/help-service.service';
     
       const fileName = this.selectedFile.name.toLowerCase();
       if (!fileName.endsWith(".csv")) {
-        console.log("Invalid file type detected!");
         this.toastr.error("Invalid file type! Please upload a CSV file.", "Error");
         return;
       }
     
       const formData = new FormData();
       formData.append("file", this.selectedFile);
-      console.log("Uploading file:", this.selectedFile.name); 
+      this.closeBulkUploadModal();
+      this.isUploading = true; // 🔄 Start loader
     
       this.userService.uploadCustomers(formData).subscribe(
         (response: any) => {
-          console.log("Upload Success:", response); 
           this.toastr.success(response.message || "File uploaded successfully!", "Success");
           this.fetchUsers();
-          this.closeBulkUploadModal();
+          this.isUploading = false; // ✅ Stop loader
         },
         (error: any) => {
-          console.error("Upload Error:", error); 
+          this.isUploading = false; // ✅ Stop loader
+    
           let errorMessage = "Error uploading file! Please try again.";
           if (error.error && error.error.message) {
             const backendMessage = error.error.message;
             if (backendMessage.includes("Duplicate entry")) {
               const match = backendMessage.match(/Duplicate entry '(.*?)'/);
               const duplicateEntry = match ? match[1] : "Unknown";
-              errorMessage = `Customer ID '${duplicateEntry}' is already registered. Please check your file for duplicates before uploading.`;
+              errorMessage = `Customer ID '${duplicateEntry}' is already registered.`;
             } else if (backendMessage.includes("constraint")) {
-              errorMessage = "Data integrity issue detected! Please check that the CSV file does not contain conflicting or missing values.";
+              errorMessage = "Data integrity issue detected! Please check your file.";
             } else {
-              errorMessage = backendMessage; 
+              errorMessage = backendMessage;
             }
           } else if (error.status === 400) {
-            errorMessage = "Bad Request! Please check your CSV format.";
+            errorMessage = "Bad Request! Check your CSV format.";
           } else if (error.status === 413) {
-            errorMessage = "File too large! Please upload a smaller CSV file.";
+            errorMessage = "File too large! Upload a smaller CSV.";
           } else if (error.status === 500) {
             errorMessage = "Internal Server Error! Please contact support.";
           }
@@ -302,6 +306,7 @@ import { HelpServiceService } from '../../services/help-service.service';
         }
       );
     }
+    
     
     customers: any[] = [];
     showEditCustomerModal: boolean = false;
@@ -518,30 +523,43 @@ import { HelpServiceService } from '../../services/help-service.service';
     downloadUserPDF() {
       const doc = new jsPDF({ orientation: 'landscape' });
       const pageWidth = doc.internal.pageSize.getWidth();
-      const headerImg = 'assets/header.png'; 
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const headerImg = 'assets/header.png';
+      const footerImg = 'assets/footer.png';
       doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 15);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
       doc.setTextColor(40, 40, 100);
       doc.text('Customer Data Report', pageWidth / 2, 30, { align: 'center' });
-      const headers = [['Customer ID', 'Service Conn No.', 'Name', 'Email', 'Phone', 'Address', 'Units', 'Start Date']];
-      const data = this.users.map(user => [
-        user.customerId, user.serviceConnectionNo, user.name, user.email, user.phone, user.address, user.unitsConsumption, user.startDate
-      ]);
-      autoTable(doc, {
-        head: headers,
-        body: data,
-        startY: 35,
-        styles: { fontSize: 10, cellPadding: 3 },
-        headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [240, 240, 240] },
-      });
-      const footerImg = 'assets/footer.png'; 
-      const pageHeight = doc.internal.pageSize.getHeight();
+      if (this.users.length === 0) {
+        doc.setFontSize(14);
+        doc.setTextColor(200, 0, 0); // red color
+        doc.text('There are no records to display.', pageWidth / 2, 50, { align: 'center' });
+      } else {
+        const headers = [['Customer ID', 'Service Conn No.', 'Name', 'Email', 'Phone', 'Address', 'Units', 'Start Date']];
+        const data = this.users.map(user => [
+          user.customerId,
+          user.serviceConnectionNo,
+          user.name,
+          user.email,
+          user.phone,
+          user.address,
+          user.unitsConsumption,
+          user.startDate
+        ]);
+        autoTable(doc, {
+          head: headers,
+          body: data,
+          startY: 35,
+          styles: { fontSize: 10, cellPadding: 3 },
+          headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] },
+        });
+      }
       doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 15);
       doc.save('Customer_Data.pdf');
     }
-
+    
     downloadEmployeePDF() {
       const doc = new jsPDF({ orientation: 'landscape' });
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -933,6 +951,8 @@ import { HelpServiceService } from '../../services/help-service.service';
       }
     );
   }
+
+  
 
 }
   

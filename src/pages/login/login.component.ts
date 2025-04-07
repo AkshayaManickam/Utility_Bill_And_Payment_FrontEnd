@@ -58,6 +58,8 @@ export class LoginComponent {
       this.toastr.warning('Please enter a valid email.', 'Warning');
     }
   }
+
+  
   verifyOtp() {
     if (this.otpForm.valid) {
       const enteredOtp = this.otpForm.value.otp;
