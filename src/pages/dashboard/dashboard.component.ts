@@ -88,10 +88,10 @@ import { BrowserModule } from '@angular/platform-browser';
     employees: any[] = [];
     searchQuery: string = '';
     currentPage: number = 0;
-    pageSize: number = 5;
+    pageSize: number = 4;
     searchQuery1: string = '';
     currentPage1: number = 0;
-    pageSize1: number = 5;
+    pageSize1: number = 4;
 
     fetchUsers() {
       this.userService.getUsers().subscribe(data => {
@@ -283,10 +283,10 @@ import { BrowserModule } from '@angular/platform-browser';
         (response: any) => {
           this.toastr.success(response.message || "File uploaded successfully!", "Success");
           this.fetchUsers();
-          this.isUploading = false; // ✅ Stop loader
+          this.isUploading = false; 
         },
         (error: any) => {
-          this.isUploading = false; // ✅ Stop loader
+          this.isUploading = false; 
     
           let errorMessage = "Error uploading file! Please try again.";
           if (error.error && error.error.message) {
@@ -464,7 +464,20 @@ import { BrowserModule } from '@angular/platform-browser';
         },
         (error) => {
           console.error('Error saving invoice:', error);
-          this.toastr.error('Error saving invoice', 'Error');
+        
+          if (error.error && typeof error.error === 'string') {
+            if (error.error.includes('Invalid Service Connection Number')) {
+              this.toastr.error('Invalid service connection number. Please check and try again.', 'Error');
+            } else if (error.error.includes('Bill already generated')) {
+              this.toastr.warning('Invoice already exists for this month.', 'Warning');
+            } else {
+              this.toastr.error(error.error, 'Error');
+            }
+          } else {
+            this.toastr.error('Something went wrong while saving the invoice.', 'Error');
+          }
+        
+          this.resetForm();
         }
       );
     }
@@ -480,7 +493,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
     invoices: Invoice[] = [];
     currentPage2: number = 0;
-    itemsPerPage2: number = 5;
+    itemsPerPage2: number = 4;
     totalPages2: number = 0;
 
     fetchInvoices(): void {

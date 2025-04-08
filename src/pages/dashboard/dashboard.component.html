@@ -18,6 +18,7 @@
   </aside>
 
   <main class="content">
+      <h2 style="font-size: 14px;float: right;color:#001f73;">Welcome {{ this.loggedInEmployeeId }} ,</h2><br><br>
       <header class="topbar">       
           <a href="#" class="pro-version" style="color:#001f73;">BBC Operational Official Dashboard</a>
           <div class="profile-icon"></div>
@@ -606,8 +607,6 @@
                             *ngIf="!(request.status === 'COMPLETED' || request.assignedTo !== loggedInEmployeeId)" 
                             class="fas fa-edit">
                            </i>
-                    
-                          <!-- Show lock icon if button is disabled -->
                           <i 
                             *ngIf="request.status === 'COMPLETED' || request.assignedTo !== loggedInEmployeeId" 
                             class="fas fa-lock text-muted">
@@ -617,20 +616,15 @@
                   </tr>
               </tbody>
           </table>
-          <!-- Modal Overlay -->
           <div class="custom-modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
-
-          <!-- Status Update Modal -->
           <div class="custom-status-modal" *ngIf="isModalOpen">
             <h3 class="custom-modal-title">Update Status</h3>
-
             <label for="customStatusSelect" class="custom-modal-label">Select New Status:</label>
             <select id="customStatusSelect" class="custom-modal-select" [(ngModel)]="selectedStatus">
               <option value="RECEIVED">RECEIVED</option>
               <option value="IN_PROGRESS">IN_PROGRESS</option>
               <option value="COMPLETED">COMPLETED</option>
             </select>
-
             <div class="custom-modal-buttons">
               <button class="custom-update-btn" (click)="updateStatus()">Update</button>
               <button class="custom-close-btn" (click)="closeModal()">Close</button>
