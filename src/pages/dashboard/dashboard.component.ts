@@ -14,7 +14,7 @@ import { PaymentService } from '../../services/payment.service';
 import { Transaction, TransactionService } from '../../services/transaction.service';
 import { Router } from '@angular/router';
 import { HelpServiceService } from '../../services/help-service.service';
-import { BrowserModule } from '@angular/platform-browser';
+import * as Papa from 'papaparse';
 
   @Component({
     selector: 'app-dashboard',
@@ -134,7 +134,10 @@ import { BrowserModule } from '@angular/platform-browser';
     }
 
     changePage(page: number) {
-      if (page >= 0 && page < this.totalPages) {
+      if(this.totalPages === 0){
+        this.currentPage = 0;
+      }
+      else if (page >= 0 && page < this.totalPages) {
         this.currentPage = page;
       }
     }
@@ -258,9 +261,39 @@ import { BrowserModule } from '@angular/platform-browser';
       this.selectedFile = null; 
     }
 
-    handleFileInput(event: any) {
+    previewData: any[] = [];
+    previewHeaders: string[] = [];
+    
+    showCSVPreviewModal: boolean = false;
+    handleFileInput(event: any): void {
       this.selectedFile = event.target.files[0];
+    
+      if (this.selectedFile && this.selectedFile.name.toLowerCase().endsWith(".csv")) {
+        const reader = new FileReader();
+    
+        reader.onload = (e: any) => {
+          const csvText = e.target.result as string;
+    
+          const result = Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true
+          });
+    
+          if (result.data && result.data.length > 0) {
+            this.previewHeaders = Object.keys(result.data[0]);
+            this.previewData = result.data.slice(0, 5); // Show first 5 rows
+            this.showCSVPreviewModal = true;
+          }
+        };
+    
+        reader.readAsText(this.selectedFile);
+      }
     }
+    
+    closeCSVPreviewModal(): void {
+      this.showCSVPreviewModal = false;
+    }
+   
 
     bulkUpload() {
       if (!this.selectedFile) {
@@ -277,7 +310,7 @@ import { BrowserModule } from '@angular/platform-browser';
       const formData = new FormData();
       formData.append("file", this.selectedFile);
       this.closeBulkUploadModal();
-      this.isUploading = true; // 🔄 Start loader
+      this.isUploading = true; 
     
       this.userService.uploadCustomers(formData).subscribe(
         (response: any) => {
@@ -496,12 +529,27 @@ import { BrowserModule } from '@angular/platform-browser';
     itemsPerPage2: number = 4;
     totalPages2: number = 0;
 
+
+    onFilterChange(): void {
+      this.currentPage2 = 0;
+      this.updateTotalPages2();
+    }
+
+    updateTotalPages2(): void {
+      const filteredLength = this.filteredInvoices().length;
+      this.totalPages2 = Math.ceil(filteredLength / this.itemsPerPage2);
+      if (this.currentPage2 >= this.totalPages2) {
+        this.currentPage2 = 0;
+      }
+    }
+
     fetchInvoices(): void {
       this.invoiceService.getInvoices().subscribe({
         next: (data) => {
           if (data && Array.isArray(data)) {
             this.invoices = data;
             console.log("Invoices fetched:", this.invoices);
+            this.updateTotalPages2();
             this.totalPages2 = Math.ceil(this.invoices.length / this.itemsPerPage2);
           } else {
             console.error("Invalid API response:", data);
@@ -515,18 +563,63 @@ import { BrowserModule } from '@angular/platform-browser';
       });
     }
 
+    selectedPaymentStatus: string = '';
+
     filteredInvoices() {
       return this.invoices.filter(invoice =>
-        invoice.id.toString().includes(this.searchQuery1) ||
-        invoice.serviceConnectionNumber.toLowerCase().includes(this.searchQuery1.toLowerCase()) ||
-        invoice.unitsConsumed.toString().includes(this.searchQuery1) ||
-        invoice.totalAmount.toString().includes(this.searchQuery1) ||
-        new Date(invoice.billGeneratedDate).toLocaleDateString().includes(this.searchQuery1) ||
-        new Date(invoice.dueDate).toLocaleDateString().includes(this.searchQuery1) ||
-        invoice.isPaid.toLowerCase().includes(this.searchQuery1.toLowerCase())
+        (
+          invoice.id.toString().includes(this.searchQuery1) ||
+          invoice.serviceConnectionNumber.toLowerCase().includes(this.searchQuery1.toLowerCase()) ||
+          invoice.unitsConsumed.toString().includes(this.searchQuery1) ||
+          invoice.totalAmount.toString().includes(this.searchQuery1) ||
+          new Date(invoice.billGeneratedDate).toLocaleDateString().includes(this.searchQuery1) ||
+          new Date(invoice.dueDate).toLocaleDateString().includes(this.searchQuery1) ||
+          invoice.isPaid.toLowerCase().includes(this.searchQuery1.toLowerCase())
+        ) &&
+        (
+          !this.selectedPaymentStatus || invoice.isPaid === this.selectedPaymentStatus
+        )
       );
     }
-     
+
+    downloadFilteredInvoices() {
+      const filtered = this.filteredInvoices();
+      if (filtered.length === 0) {
+        this.toastr.error('No records Found');
+        return;
+      }
+      const doc = new jsPDF({ orientation: 'landscape' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const headerImg = 'assets/header.png';
+      doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 25);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(40, 40, 100);
+      doc.text('Filtered Electricity Invoice Report', pageWidth / 2, 35, { align: 'center' });
+      const headers = [['Invoice ID', 'Service Connection No', 'Units Consumed', 'Total Amount', 'Bill Date', 'Due Date', 'Payment Status']];
+      const data = filtered.map(inv => [
+        inv.id,
+        inv.serviceConnectionNumber,
+        inv.unitsConsumed,
+        `${inv.totalAmount}`,
+        new Date(inv.billGeneratedDate).toLocaleDateString(),
+        new Date(inv.dueDate).toLocaleDateString(),
+        inv.isPaid
+      ]);
+      autoTable(doc, {
+        head: headers,
+        body: data,
+        startY: 45,
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+      });
+      const footerImg = 'assets/footer.png';
+      doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20);
+      doc.save('Filtered_Electricity_Invoice_Report.pdf');
+    }
+      
     getPaginatedInvoices() {
       const filtered = this.filteredInvoices();
       const startIndex = this.currentPage2 * this.itemsPerPage2;
@@ -534,7 +627,10 @@ import { BrowserModule } from '@angular/platform-browser';
     }
   
     changePage2(page: number): void {
-      if (page >= 0 && page < this.totalPages2) {
+      if(this.totalPages2 === 0){
+        this.currentPage2 = 0;
+      }
+      else if (page >= 0 && page < this.totalPages2) {
         this.currentPage2 = page;
       }
     }
@@ -607,39 +703,6 @@ import { BrowserModule } from '@angular/platform-browser';
       doc.save('Employee_Data.pdf');
     }
 
-    downloadInvoicePDF() {
-      const doc = new jsPDF({ orientation: 'landscape' });
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const headerImg = 'assets/header.png'; 
-      doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 25); 
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(18);
-      doc.setTextColor(40, 40, 100);
-      doc.text('Electricity Invoice Report', pageWidth / 2, 35, { align: 'center' });
-      const headers = [['Invoice ID', 'Service Connection No', 'Units Consumed', 'Total Amount', 'Bill Date', 'Due Date', 'Payment Status']];
-      const data = this.invoices.map(inv => [
-        inv.id, 
-        inv.serviceConnectionNumber, 
-        inv.unitsConsumed, 
-        `${inv.totalAmount}`, 
-        new Date(inv.billGeneratedDate).toLocaleDateString(), 
-        new Date(inv.dueDate).toLocaleDateString(), 
-        inv.isPaid
-      ]);
-    
-      autoTable(doc, {
-        head: headers,
-        body: data,
-        startY: 45,
-        styles: { fontSize: 10, cellPadding: 3 },
-        headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [240, 240, 240] },
-      });
-      const footerImg = 'assets/footer.png';
-      doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20);
-      doc.save('Electricity_Invoice_Report.pdf');
-    }
     
     showEditInvoiceModal = false;
     selectedInvoice: any = {};
@@ -663,7 +726,9 @@ import { BrowserModule } from '@angular/platform-browser';
       this.showEditInvoiceModal = false;
     }
 
+
     updateInvoice() {
+      console.log(this.selectedInvoice);
       this.invoiceService.updateInvoice(this.selectedInvoice).subscribe(
         (response) => {
           this.toastr.success("Invoice updated successfully!");
@@ -773,7 +838,6 @@ import { BrowserModule } from '@angular/platform-browser';
         },
         (error) => {   
           this.toastr.error('Payment Failed! Please try again.', 'Error');
-          this.resetFormTransaction();
           console.error('Transaction Error:', error);
         }
       );
@@ -926,6 +990,8 @@ import { BrowserModule } from '@angular/platform-browser';
         return 'status-in-progress';
       case 'COMPLETED':
         return 'status-completed';
+      case 'DECLINED':
+        return 'status-declined';
       default:
         return '';
     }
@@ -970,8 +1036,6 @@ import { BrowserModule } from '@angular/platform-browser';
       }
     );
   }
-
-  
 
 }
   

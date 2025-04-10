@@ -121,7 +121,32 @@
               <button class="bulk-btn cancel-bulk-btn" (click)="closeBulkUploadModal()">Cancel</button>
             </div>
           </div>
-        </div>   
+        </div>  
+        
+        <div *ngIf="showCSVPreviewModal" class="csv-preview-modal-overlay">
+          <div class="csv-preview-modal-box">
+            <h4>CSV Preview</h4>
+
+            <div class="csv-preview-table-wrapper">
+              <table class="csv-preview-table">
+                <thead>
+                  <tr>
+                    <th *ngFor="let header of previewHeaders">{{ header }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of previewData">
+                    <td *ngFor="let header of previewHeaders">{{ row[header] }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="csv-preview-modal-buttons">
+              <button class="csv-preview-close-btn" (click)="closeCSVPreviewModal()">Close Preview</button>
+            </div>
+              </div>
+        </div>
 
         <!-- Loader -->
         <div *ngIf="isUploading" class="loader-container">
@@ -169,8 +194,11 @@
           </div>
         </div>
 
-        
-        <table class="user-table">
+        <div *ngIf="filteredUsers().length === 0">
+          No Users found.
+        </div>
+         
+        <table class="user-table" *ngIf="filteredUsers().length > 0">
           <thead>
             <tr>
               <th>Customer ID</th>
@@ -202,7 +230,7 @@
           </tbody>
         </table><br>
       
-        <div class="pagination-controls">
+        <div class="pagination-controls" *ngIf="filteredUsers().length > 0">
           <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
           <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
           <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">Next</button>
@@ -238,10 +266,7 @@
 
                 <label>Email</label>
                 <input [(ngModel)]="newEmployee.email" type="email" class="form-control" required>
-
-                <label>Location</label>
-                <input [(ngModel)]="newEmployee.location" type="text" class="form-control" required>
-          
+         
               </div>
             </div>
         
@@ -272,6 +297,7 @@
 
                 <label>Phone</label>
                 <input [(ngModel)]="selectedEmployee.phone" type="tel" class="form-control" required>
+
               </div>
 
             </div>
@@ -284,15 +310,17 @@
           </div>
         </div>
 
-        
-        <table class="user-table">
+        <div *ngIf="filteredEmployees().length === 0">
+          No Employees found.
+        </div>
+
+        <table class="user-table" *ngIf="filteredEmployees().length > 0">
           <thead>
             <tr>
               <th>Employee ID</th>
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
-              <th>Location</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -302,7 +330,6 @@
               <td>{{ employees.name }}</td>
               <td>{{ employees.email }}</td>
               <td>{{ employees.phone }}</td>
-              <td>{{ employees.location }}</td>
               <td>
                 <button class="edit-btn" (click)="editEmployee(employees)"><i class="fas fa-edit"></i></button>
                 <button class="delete-btn" (click)="deleteEmployee(employees)"><i class="fas fa-trash"></i></button>
@@ -311,7 +338,7 @@
           </tbody>
         </table><br>
       
-        <div class="pagination-controls">
+        <div class="pagination-controls" *ngIf="filteredEmployees().length > 0">
           <button (click)="changePage1(currentPage1 - 1)" [disabled]="currentPage1 === 0">Previous</button>
           <span>Page {{ currentPage1 + 1 }} of {{ totalPages1 }}</span>
           <button (click)="changePage1(currentPage1 + 1)" [disabled]="currentPage1 === totalPages1 - 1">Next</button>
@@ -320,9 +347,23 @@
       
       <div class="manage-users-container" *ngIf="activeTab === 'invoice'">
         <div class="top-controls">
-          <input type="text" [(ngModel)]="searchQuery1" placeholder="Search Invoice..." class="search-bar" />
+          <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input
+              type="text"
+              [(ngModel)]="searchQuery1"
+              placeholder="Search Invoice..."
+              class="search-bar"
+            />
+            <select [(ngModel)]="selectedPaymentStatus" class="status-filter" (ngModelChange)="onFilterChange()">
+              <option value="">All</option>
+              <option value="PAID">Paid</option>
+              <option value="NOT PAID">Not Paid</option>
+              <option value="OVERDUE">Overdue</option>
+              <option value="EXCEPTION">Exception</option>
+            </select>
+            <button class="add-btn" (click)="downloadFilteredInvoices()">Download</button>
+          </div>          
           <div class="buttons">
-            <button class="add-btn" (click)="downloadInvoicePDF()">Download</button>
             <button class="add-btn" (click)="openInvoiceModal()">Generate Invoice</button>
           </div>
         </div><br>
@@ -366,8 +407,12 @@
             </div>
           </div>
         </div>
+
+        <div *ngIf="filteredInvoices().length === 0">
+          No invoices found.
+        </div>
          
-        <table class="user-table">
+        <table class="user-table" *ngIf="filteredInvoices().length > 0" >
           <thead>
             <tr>
               <th>Invoice ID</th>
@@ -388,18 +433,28 @@
               <td>{{ invoice?.totalAmount | currency:'INR' }}</td>
               <td>{{ invoice?.billGeneratedDate | date:'dd/MM/yyyy' }}</td>
               <td>{{ invoice?.dueDate | date:'dd/MM/yyyy' }}</td>
-              <td [ngClass]="{ 'paid': invoice?.isPaid === 'Paid', 'not-paid': invoice?.isPaid === 'Not Paid' }">
-                {{ invoice?.isPaid }}
-              </td>
+              <td [ngClass]="{
+                  'paid': invoice?.isPaid === 'PAID',
+                  'not-paid': invoice?.isPaid === 'NOT PAID',
+                  'overdue': invoice?.isPaid === 'OVERDUE',
+                  'exception': invoice?.isPaid === 'EXCEPTION'
+                 }">
+                 {{ invoice?.isPaid }}
+             </td>
               <td>
-                <button class="edit-btn" (click)="editInvoice(invoice)"><i class="fas fa-edit"></i></button>
+                <button 
+                    class="edit-btn" 
+                    (click)="editInvoice(invoice)" 
+                    [disabled]="invoice?.isPaid === 'PAID'">
+                    <i *ngIf="invoice?.isPaid !== 'PAID'" class="fas fa-edit"></i>
+                    <i *ngIf="invoice?.isPaid === 'PAID'" class="fas fa-lock"></i>
+                </button>
                 <button class="delete-btn" (click)="downloadParticularInvoice(invoice)"><i class="fas fa-download"></i></button>
               </td>
             </tr>            
           </tbody>
         </table>
         <br>
-
 
         <!-- Edit Invoice Modal -->
         <div *ngIf="showEditInvoiceModal" class="popup-overlay">
@@ -430,6 +485,14 @@
                 <label>Due Date</label>
                 <input [(ngModel)]="selectedInvoice.dueDate" class="form-control" readonly>
 
+                <label>Payment Status</label>
+                <select [(ngModel)]="selectedInvoice.isPaid" class="form-control" required>
+                  <option value="PAID">Paid</option>
+                  <option value="NOT_PAID">Not Paid</option>
+                  <option value="OVERDUE">Overdue</option>
+                  <option value="EXCEPTION">Exception</option>
+                </select>
+
               </div>
             </div>
 
@@ -441,7 +504,7 @@
           </div>
         </div>
 
-        <div class="pagination-controls">
+        <div class="pagination-controls" *ngIf="filteredInvoices().length > 0">
           <button (click)="changePage2(currentPage2 - 1)" [disabled]="currentPage2 === 0">Previous</button>
           <span>Page {{ currentPage2 + 1 }} of {{ totalPages2 }}</span>
           <button (click)="changePage2(currentPage2 + 1)" [disabled]="currentPage2 === totalPages2 - 1">Next</button>
@@ -529,9 +592,13 @@
           <div class="buttons">
             <button class="add-btn" (click)="downloadTransactionPDF()">Download</button>
           </div>
-        </div><br>       
+        </div><br> 
         
-        <table class="user-table">
+        <div *ngIf="filteredTransactions.length === 0">
+          No  Transactions found.
+        </div>
+        
+        <table class="user-table" *ngIf="filteredTransactions.length > 0">
           <thead>
             <tr>
               <th>Transaction ID</th>
@@ -563,7 +630,7 @@
         </table>
         <br>
       
-        <div class="pagination-controls">
+        <div class="pagination-controls" *ngIf="filteredTransactions.length > 0">
           <button (click)="changePage3(currentPage3 - 1)" [disabled]="currentPage3 === 0">Previous</button>
           <span>Page {{ currentPage3 + 1 }} of {{ totalPages3 }}</span>
           <button (click)="changePage3(currentPage3 + 1)" [disabled]="currentPage3 === totalPages3 - 1">Next</button>
@@ -585,7 +652,7 @@
                       <th>Old Value</th>
                       <th>New Value</th>
                       <th>Status</th>
-                      <th>Assigned To</th>
+                      <th>Description</th>
                       <th>Action</th>
                   </tr>
               </thead>
@@ -597,20 +664,27 @@
                       <td>{{ request.oldValue || 'N/A' }}</td>
                       <td>{{ request.newValue || 'N/A' }}</td>
                       <td [ngClass]="getStatusClass(request.status)">{{ request.status }}</td>
-                      <td>{{ request.assignedTo}}</td>
+                      <td>{{ request.description}}</td>
                       <td>
                         <button 
+                          *ngIf="request.status !== 'COMPLETED' && request.status !== 'DECLINED'" 
                           class="edit-btn" 
-                          (click)="openModal(request)" 
-                          [disabled]="request.status === 'COMPLETED' || request.assignedTo !== loggedInEmployeeId">
-                          <i 
-                            *ngIf="!(request.status === 'COMPLETED' || request.assignedTo !== loggedInEmployeeId)" 
-                            class="fas fa-edit">
-                           </i>
-                          <i 
-                            *ngIf="request.status === 'COMPLETED' || request.assignedTo !== loggedInEmployeeId" 
-                            class="fas fa-lock text-muted">
-                          </i>
+                          (click)="openModal(request)">
+                          <i class="fas fa-edit"></i> <!-- Edit icon -->
+                        </button>
+
+                        <button style="background-color: #f9f9f9;"
+                          *ngIf="request.status === 'COMPLETED'" 
+                          class="completed-btn" 
+                          disabled>
+                          <i class="fas fa-check-circle text-success"></i> <!-- Completed icon -->
+                        </button>
+
+                        <button style="background-color: #f9f9f9;"
+                          *ngIf="request.status === 'DECLINED'" 
+                          class="declined-btn" 
+                          disabled>
+                          <i class="fas fa-times-circle text-danger"></i> <!-- Declined icon -->
                         </button>
                       </td>
                   </tr>
@@ -624,6 +698,7 @@
               <option value="RECEIVED">RECEIVED</option>
               <option value="IN_PROGRESS">IN_PROGRESS</option>
               <option value="COMPLETED">COMPLETED</option>
+              <option value="DECLINED">DECLINED</option>
             </select>
             <div class="custom-modal-buttons">
               <button class="custom-update-btn" (click)="updateStatus()">Update</button>

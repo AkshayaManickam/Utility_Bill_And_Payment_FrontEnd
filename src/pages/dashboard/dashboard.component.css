@@ -904,9 +904,93 @@ button {
   margin-top: 1px;
 }
 
+.csv-preview-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.csv-preview-modal-box {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.25);
+}
+
+.csv-preview-table-wrapper {
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+.csv-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.csv-preview-table th,
+.csv-preview-table td {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.csv-preview-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.csv-preview-modal-buttons {
+  text-align: right;
+  margin-top: 20px;
+}
+
+.csv-preview-close-btn {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.csv-preview-close-btn:hover {
+  background-color: #c9302c;
+}
+
+.paid {
+  color: green;
+  font-weight: bold;
+}
+
+.not-paid {
+  color: red;
+  font-weight: bold;
+}
+
+.overdue {
+  color: orange;
+  font-weight: bold;
+}
 
 
+.exception {
+  color: #9c27b0; /* purple or your preferred color */
+  font-weight: bold;
+}
 
-
-
-
+.status-declined{
+  color:red;
+  font-weight: bold;
+}

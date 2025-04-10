@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(BrowserAnimationsModule), // ✅ Ensure animations are provided
     provideAnimations(),
     importProvidersFrom(ToastrModule.forRoot({  
-      timeOut: 1000,  // ✅ Ensure toast stays visible
+      timeOut: 3000,  // ✅ Ensure toast stays visible
       positionClass: 'toast-top-right',  // ✅ Adjust position
       preventDuplicates: true,
       closeButton: true
