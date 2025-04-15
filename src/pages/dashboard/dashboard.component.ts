@@ -604,7 +604,7 @@ import * as Papa from 'papaparse';
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
       doc.setTextColor(40, 40, 100);
-      doc.text('Filtered Electricity Invoice Report', pageWidth / 2, 35, { align: 'center' });
+      doc.text('Electricity Invoice Report', pageWidth / 2, 35, { align: 'center' });
       const headers = [['Invoice ID', 'Service Connection No', 'Units Consumed', 'Total Amount', 'Bill Date', 'Due Date', 'Payment Status']];
       const data = filtered.map(inv => [
         inv.id,
@@ -625,7 +625,7 @@ import * as Papa from 'papaparse';
       });
       const footerImg = 'assets/footer.png';
       doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20);
-      doc.save('Filtered_Electricity_Invoice_Report.pdf');
+      doc.save('Electricity_Invoice_Report.pdf');
     }
       
     getPaginatedInvoices() {
@@ -675,7 +675,7 @@ import * as Papa from 'papaparse';
           body: data,
           startY: 35,
           styles: { fontSize: 10, cellPadding: 3 },
-          headStyles: { fillColor: [40, 40, 100], textColor: 255, fontStyle: 'bold' },
+          headStyles: { fillColor: [0, 31, 115], textColor: 255, fontStyle: 'bold' },
           alternateRowStyles: { fillColor: [240, 240, 240] },
         });
       }
@@ -768,7 +768,7 @@ import * as Papa from 'papaparse';
       doc.setDrawColor(0);
       doc.line(14, 70, pageWidth - 14, 70);
       doc.setFontSize(14);
-      doc.setTextColor(0, 102, 204); 
+      doc.setTextColor(0, 31, 115); 
       doc.text('Customer Details', 14, 80);  
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);  
@@ -787,7 +787,7 @@ import * as Papa from 'papaparse';
         body: tableRows,
         theme: 'grid',
         headStyles: {
-          fillColor: [0, 102, 204], 
+          fillColor: [0, 31, 115], 
           textColor: [255, 255, 255], 
           fontSize: 12,
           fontStyle: 'bold',
@@ -956,8 +956,50 @@ import * as Papa from 'papaparse';
     }
 
     downloadTransactionPDF() {
-      console.log('Downloading transaction PDF...');
+      const doc = new jsPDF({ orientation: 'landscape' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const headerImg = 'assets/header.png';
+      doc.addImage(headerImg, 'PNG', 10, 5, pageWidth - 20, 25);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(40, 40, 100);
+      doc.text('Transaction Report', pageWidth / 2, 35, { align: 'center' });
+      const headers = [[
+        'Transaction ID',
+        'Invoice ID',
+        'Service Conn No',
+        'Total Amount',
+        'Discount Type',
+        'Amount Paid',
+        'Payment Method',
+        'Status',
+        'Date'
+      ]];
+      const data = this.transactions.map(tx => [
+        tx.transactionId,
+        tx.invoice.id,
+        tx.invoice.serviceConnectionNumber,
+        `${tx.totalAmount.toFixed(2)}`,
+        tx.discountType,
+        `${tx.amountPaid.toFixed(2)}`,
+        tx.paymentMethod,
+        tx.transactionStatus,
+        tx.transactionDate 
+      ]);
+      autoTable(doc, {
+        head: headers,
+        body: data,
+        startY: 45,
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [0, 31, 115], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+      });
+      const footerImg = 'assets/footer.png';
+      doc.addImage(footerImg, 'PNG', 10, pageHeight - 30, pageWidth - 20, 20);
+      doc.save('Transaction_Report.pdf');
     }
+
 
     fetchTransactions(): void {
       this.transactionService.getAllTransactions().subscribe(
