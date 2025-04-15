@@ -488,7 +488,7 @@
                 <label>Payment Status</label>
                 <select [(ngModel)]="selectedInvoice.isPaid" class="form-control" required>
                   <option value="PAID">Paid</option>
-                  <option value="NOT_PAID">Not Paid</option>
+                  <option value="NOT PAID">Not Paid</option>
                   <option value="OVERDUE">Overdue</option>
                   <option value="EXCEPTION">Exception</option>
                 </select>
@@ -670,21 +670,21 @@
                           *ngIf="request.status !== 'COMPLETED' && request.status !== 'DECLINED'" 
                           class="edit-btn" 
                           (click)="openModal(request)">
-                          <i class="fas fa-edit"></i> <!-- Edit icon -->
+                          <i class="fas fa-edit"></i> 
                         </button>
 
                         <button style="background-color: #f9f9f9;"
                           *ngIf="request.status === 'COMPLETED'" 
                           class="completed-btn" 
                           disabled>
-                          <i class="fas fa-check-circle text-success"></i> <!-- Completed icon -->
+                          <i class="fas fa-check-circle text-success"></i> 
                         </button>
 
                         <button style="background-color: #f9f9f9;"
                           *ngIf="request.status === 'DECLINED'" 
                           class="declined-btn" 
                           disabled>
-                          <i class="fas fa-times-circle text-danger"></i> <!-- Declined icon -->
+                          <i class="fas fa-times-circle text-danger"></i> 
                         </button>
                       </td>
                   </tr>

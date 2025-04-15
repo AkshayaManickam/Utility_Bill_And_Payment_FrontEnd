@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -14,21 +14,26 @@ export class UserService {
     return this.http.get<any[]>(`${this.apiUrl}/all`);
   }
 
-  addCustomer(customer: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/add`, customer);
+  addCustomer(customer: any, employeeEmail: string): Observable<any> {
+    const headers = new HttpHeaders().set('X-EMPLOYEE-EMAIL', employeeEmail);
+    return this.http.post(`${this.apiUrl}/add`, customer, { headers });
   }
 
-  uploadCustomers(file: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/bulk-upload`, file);
+  uploadCustomers(file: FormData, employeeId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/bulk-upload?employeeId=${employeeId}`, file);
   }
 
-  updateUser(user: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${user.id}`, user);
+  updateUser(user: any, employeeEmail: string): Observable<any> {
+    const headers = new HttpHeaders().set('X-EMPLOYEE-EMAIL', employeeEmail);
+    return this.http.put(`${this.apiUrl}/${user.id}`, user, { headers });
   }
+  
 
-  deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteUser(id: number, employeeEmail: string): Observable<void> {
+    const headers = new HttpHeaders().set('X-EMPLOYEE-EMAIL', employeeEmail);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
   }
+  
 
   getCustomerByServiceNo(serviceConnectionNo: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/service/${serviceConnectionNo}`);

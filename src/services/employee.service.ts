@@ -15,15 +15,16 @@ export class EmployeeService {
     return this.http.get<any[]>(`${this.apiUrl}/all`);
   }
 
-  addEmployee(employee: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/add`, employee);
+  addEmployee(employee: any, loggedInEmpId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/add?loggedInEmpId=${loggedInEmpId}`, employee);
   }
 
-  updateEmployee(employee: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${employee.id}`, employee);
+  updateEmployee(employee: any, loggedInEmpId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${employee.id}?loggedInEmpId=${loggedInEmpId}`, employee);
   }
-
-  deleteEmployee(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  
+  deleteEmployee(id: number, loggedInEmpId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}?loggedInEmpId=${loggedInEmpId}`);
   }
+  
 }

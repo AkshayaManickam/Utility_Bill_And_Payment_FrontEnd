@@ -14,8 +14,9 @@ export class HelpServiceService {
     return this.http.get<any[]>(`${this.apiUrl}/all`);
   }
 
-  updateHelpStatus(id: number, status: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/update-status/${id}`, { status });
+  updateHelpStatus(id: number, status: string, empId: string): Observable<any> {
+    const payload = { status, empId };
+    return this.http.put(`${this.apiUrl}/update-status/${id}`, payload);
   }
 }
 

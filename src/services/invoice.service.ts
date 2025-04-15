@@ -11,8 +11,8 @@ export class InvoiceService {
 
   constructor(private http: HttpClient) {}
 
-  saveInvoice(invoice: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/save`, invoice);
+  saveInvoice(invoice: any, loggedInEmployeeId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/save?loggedInEmpId=${loggedInEmployeeId}`, invoice);
   }
   
   getInvoices(): Observable<Invoice[]> {
@@ -23,10 +23,13 @@ export class InvoiceService {
     return this.http.get<number>(`${this.baseUrl}/count`);
   }
 
-  updateInvoice(invoice: Invoice): Observable<Invoice> {
-    return this.http.put<Invoice>(`${this.baseUrl}/${invoice.id}`, invoice);
+  updateInvoice(invoice: Invoice, loggedInEmpId: string): Observable<Invoice> {
+    return this.http.put<Invoice>(
+      `${this.baseUrl}/${invoice.id}?loggedInEmpId=${loggedInEmpId}`,
+      invoice
+    );
   }
-
+  
   getInvoiceDetails(invoiceId: string): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/${invoiceId}`);
   }

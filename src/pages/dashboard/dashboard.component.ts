@@ -184,28 +184,32 @@ import * as Papa from 'papaparse';
     }
 
     saveCustomer() {
-      this.userService.addCustomer(this.newCustomer).subscribe(
-        response => {
-          this.fetchUsers();
-          this.fetchUserCount();
-          this.toastr.success('Customer added successfully!', 'Success');
-          this.closeAddCustomerModal();
-        },
-        error => {
-          this.toastr.error('Error adding customer!', 'Error');
-        }
-      );
-      this.newCustomer= {
-        customerId: '',
-        serviceConnectionNo: '',
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        startDate: '',
-        unitsConsumption: 0 
-      };
+      if(this.loggedInEmployeeId){
+        this.userService.addCustomer(this.newCustomer, this.loggedInEmployeeId).subscribe(
+          response => {
+            this.fetchUsers();
+            this.fetchUserCount();
+            this.toastr.success('Customer added successfully!', 'Success');
+            this.closeAddCustomerModal();
+          },
+          error => {
+            this.toastr.error('Error adding customer!', 'Error');
+          }
+        );
+      
+        this.newCustomer = {
+          customerId: '',
+          serviceConnectionNo: '',
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          startDate: '',
+          unitsConsumption: 0 
+        };
+      }
     }
+    
 
 
     showAddEmployeeModal: boolean = false;
@@ -228,7 +232,7 @@ import * as Papa from 'papaparse';
 
     saveEmployee() {
       console.log(this.newEmployee);
-      this.employeeService.addEmployee(this.newEmployee).subscribe(
+      this.employeeService.addEmployee(this.newEmployee, this.loggedInEmployeeId).subscribe(
         response => {
           this.fetchEmployees();
           this.fetchBillCount();
@@ -239,13 +243,15 @@ import * as Papa from 'papaparse';
           this.toastr.error('Error adding Employee!', 'Error');
         }
       );
-      this.newEmployee= {
+    
+      this.newEmployee = {
         employeeId: '',
         name: '',
         email: '',
         phone: '',
       };
     }
+    
 
     showBulkUploadModal = false;
     selectedFile: File | null = null;
@@ -265,6 +271,7 @@ import * as Papa from 'papaparse';
     previewHeaders: string[] = [];
     
     showCSVPreviewModal: boolean = false;
+
     handleFileInput(event: any): void {
       this.selectedFile = event.target.files[0];
     
@@ -300,26 +307,23 @@ import * as Papa from 'papaparse';
         this.toastr.warning("Please select a CSV file!", "Warning");
         return;
       }
-    
       const fileName = this.selectedFile.name.toLowerCase();
       if (!fileName.endsWith(".csv")) {
         this.toastr.error("Invalid file type! Please upload a CSV file.", "Error");
         return;
       }
-    
       const formData = new FormData();
       formData.append("file", this.selectedFile);
       this.closeBulkUploadModal();
-      this.isUploading = true; 
-    
-      this.userService.uploadCustomers(formData).subscribe(
+      this.isUploading = true;
+      this.userService.uploadCustomers(formData, this.loggedInEmployeeId).subscribe(
         (response: any) => {
           this.toastr.success(response.message || "File uploaded successfully!", "Success");
           this.fetchUsers();
-          this.isUploading = false; 
+          this.isUploading = false;
         },
         (error: any) => {
-          this.isUploading = false; 
+          this.isUploading = false;
     
           let errorMessage = "Error uploading file! Please try again.";
           if (error.error && error.error.message) {
@@ -347,17 +351,19 @@ import * as Papa from 'papaparse';
     }
     
     
+    
     customers: any[] = [];
     showEditCustomerModal: boolean = false;
     selectedCustomer: any = {};
     
     editUser(customer: any) {
-      this.selectedCustomer = { ...customer }; // Clone object
+      this.selectedCustomer = { ...customer }; 
       this.showEditCustomerModal = true;
     }
     
-      updateCustomer() {
-        this.userService.updateUser(this.selectedCustomer).subscribe(
+    updateCustomer() {
+      if (this.loggedInEmployeeId) {
+        this.userService.updateUser(this.selectedCustomer, this.loggedInEmployeeId).subscribe(
           (response) => {
             this.toastr.success("Employee updated successfully!");
             this.fetchUsers(); 
@@ -368,6 +374,7 @@ import * as Papa from 'papaparse';
           }
         );
       }
+    }
     
       closeEditCustomerModal() {
         this.showEditCustomerModal = false;
@@ -382,40 +389,41 @@ import * as Papa from 'papaparse';
         this.showEditEmployeeModal = true;
       }
   
-    updateEmployee() {
-      this.employeeService.updateEmployee(this.selectedEmployee).subscribe(
-        (response) => {
-          this.toastr.success("Employee updated successfully!");
-          this.fetchEmployees(); 
-          this.showEditEmployeeModal = false;
-        },
-        (error) => {
-          this.toastr.error("Failed to update employee.");
-        }
-      );
-    }
+      updateEmployee() {
+        this.employeeService.updateEmployee(this.selectedEmployee, this.loggedInEmployeeId).subscribe(
+          (response) => {
+            this.toastr.success("Employee updated successfully!");
+            this.fetchEmployees(); 
+            this.showEditEmployeeModal = false;
+          },
+          (error) => {
+            this.toastr.error("Failed to update employee.");
+          }
+        );
+      }
+      
   
     closeEditEmployeeModal() {
       this.showEditEmployeeModal = false;
     }
 
     deleteUser(user: any): void {
-      if (confirm(`Are you sure you want to delete ${user.name}?`)) {
-        this.userService.deleteUser(user.id).subscribe(
+      if (this.loggedInEmployeeId && confirm(`Are you sure you want to delete ${user.name}?`)) {
+        this.userService.deleteUser(user.id, this.loggedInEmployeeId).subscribe(
           () => {
-            this.fetchUsers(); 
-            this.toastr.success('User deleted successfully!', 'Success');
+            this.toastr.success('Customer deleted successfully!', 'Success');
+            this.fetchUsers();
           },
           error => {
-            this.toastr.error('Error deleting user!', 'Error');
+            this.toastr.error('Error deleting customer!', 'Error');
           }
         );
       }
     }
 
     deleteEmployee(employee: any): void {
-      if (confirm(`Are you sure you want to delete ${employee.name}?`)) {
-        this.employeeService.deleteEmployee(employee.id).subscribe(
+      if (this.loggedInEmployeeId && confirm(`Are you sure you want to delete ${employee.name}?`)) {
+        this.employeeService.deleteEmployee(employee.id,this.loggedInEmployeeId).subscribe(
           () => {
             this.fetchEmployees(); 
             this.toastr.success('User deleted successfully!', 'Success');
@@ -486,7 +494,7 @@ import * as Papa from 'papaparse';
         dueDate: this.dueDate
       };
     
-      this.invoiceService.saveInvoice(invoiceData).subscribe(
+      this.invoiceService.saveInvoice(invoiceData,this.loggedInEmployeeId).subscribe(
         (response) => {
           console.log('Invoice saved successfully:', response);
           this.toastr.success('Invoice saved successfully', 'Success');
@@ -708,6 +716,7 @@ import * as Papa from 'papaparse';
     selectedInvoice: any = {};
     enteredPassword: string = ''; 
     correctPassword: string = '1234'; 
+
     editInvoice(invoice: any) {
 
       const userPassword = prompt('Enter password to edit invoice:'); 
@@ -726,10 +735,9 @@ import * as Papa from 'papaparse';
       this.showEditInvoiceModal = false;
     }
 
-
     updateInvoice() {
       console.log(this.selectedInvoice);
-      this.invoiceService.updateInvoice(this.selectedInvoice).subscribe(
+      this.invoiceService.updateInvoice(this.selectedInvoice,this.loggedInEmployeeId).subscribe(
         (response) => {
           this.toastr.success("Invoice updated successfully!");
           this.fetchInvoices();
@@ -831,7 +839,7 @@ import * as Papa from 'papaparse';
         paymentMethod: 'CASH',
         transactionStatus: 'SUCCESS',
       };
-      this.transactionService.saveTransaction(transaction).subscribe(
+      this.transactionService.saveTransaction(transaction,this.loggedInEmployeeId).subscribe(
         (response) => {
           this.lastTransactionResponse = response;
           this.showSuccessModal = true;
@@ -857,7 +865,6 @@ import * as Papa from 'papaparse';
         window.location.reload();
     }
     
-  
     downloadPaymentBill(transaction: any) {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -978,7 +985,7 @@ import * as Papa from 'papaparse';
           console.error('Error fetching help requests:', error);
         }
       );
-  }
+    }
 
   getStatusClass(status: string): string {
     switch (status) {
@@ -1004,7 +1011,7 @@ import * as Papa from 'papaparse';
   openModal(request: any): void {
     this.selectedRequestId = request.id; 
     this.selectedRequest = request;
-    this.selectedStatus = request.status; // Preselect current status
+    this.selectedStatus = request.status; 
     this.isModalOpen = true;
   }
 
@@ -1023,12 +1030,14 @@ import * as Papa from 'papaparse';
       this.toastr.warning("Please select a status!", "Warning"); 
       return;
     }
+
+    console.log(this.selectedRequestId+" "+this.selectedStatus);
   
-    this.helpService.updateHelpStatus(this.selectedRequestId, this.selectedStatus).subscribe(
+    this.helpService.updateHelpStatus(this.selectedRequestId, this.selectedStatus,this.loggedInEmployeeId).subscribe(
       (response) => {
         this.toastr.success("Status updated successfully!", "Success");
         this.closeModal();
-        this.loadHelpRequests(); // Refresh table after update
+        this.loadHelpRequests(); 
       },
       (error) => {
         console.error("Error updating status:", error);

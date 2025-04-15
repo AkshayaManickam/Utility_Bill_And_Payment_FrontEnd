@@ -25,10 +25,10 @@ export class TransactionService {
 
   constructor(private http: HttpClient) {}
 
-  saveTransaction(transaction: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/save`, transaction);
+  saveTransaction(transaction: any, loggedInEmpId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/save?loggedInEmpId=${loggedInEmpId}`, transaction);
   }
-
+  
   getAllTransactions(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}`);
   }
