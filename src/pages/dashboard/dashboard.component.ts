@@ -865,50 +865,68 @@ import * as Papa from 'papaparse';
         window.location.reload();
     }
     
+
     downloadPaymentBill(transaction: any) {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      doc.setFillColor(240, 240, 240);
-      doc.rect(0, 0, pageWidth, pageHeight, 'F');
-      const logoImg = 'assets/1.png'; 
-      doc.addImage(logoImg, 'PNG', 10, 10, 50, 20);
+      doc.setFillColor(63, 81, 181);
+      doc.rect(0, 0, pageWidth, 40, 'F');
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(24);
-      doc.setTextColor(0, 102, 204);
-      doc.text('Payment Receipt', pageWidth / 2, 40, { align: 'center' });
-      doc.setFontSize(14);
-      doc.setTextColor(0, 0, 0);
-      const amountPaid = (transaction.amountPaid && !isNaN(transaction.amountPaid)) ? transaction.amountPaid.toFixed(2) : '0.00';
-      let lineHeight = 10;
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
-      doc.text(`Invoice ID: ${transaction.invoice.id}`, 20, 60 + lineHeight);
-      lineHeight += 7;
-      doc.text(`Date: ${new Date(transaction.transactionDate).toLocaleDateString()}`, 20, 60 + lineHeight);
-      lineHeight += 7;
-      doc.text(`Discount: ${transaction.discountType ? transaction.discountType : 'None'}`, 20, 60 + lineHeight);
-      lineHeight += 7;
-      doc.text(`Amount Paid: $${amountPaid}`, 20, 60 + lineHeight);
-      lineHeight += 7;
-      doc.text(`Payment Method: ${transaction.paymentMethod}`, 20, 60 + lineHeight);
-      lineHeight += 7;
-      doc.text(`Transaction Status: ${transaction.transactionStatus}`, 20, 60 + lineHeight);
-      lineHeight += 10;
-      doc.setDrawColor(0, 102, 204);
-      doc.line(20, 60 + lineHeight, pageWidth - 20, 60 + lineHeight);
-      doc.setFont('helvetica', 'italic');
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0); 
-      doc.text('Thank you for your payment. If you have any questions, contact our support.', 20, 70 + lineHeight);
+      doc.setFontSize(22);
+      doc.setTextColor(255, 255, 255);
+      doc.text('Payment Receipt', pageWidth / 2, 25, { align: 'center' });
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+      doc.line(20, 45, pageWidth - 20, 45);
+      let yPosition = 55;
+      const rowHeight = 12;
       doc.setFont('helvetica', 'normal');
+      doc.setFontSize(13);
+    
+      const tableData = [
+        { label: 'Invoice ID', value: String(transaction.invoice.id) },
+        { label: 'Date', value: new Date(transaction.transactionDate).toLocaleDateString() },
+        { label: 'Discount', value: transaction.discountType || 'None' },
+        { label: 'Amount Paid', value: `${transaction.amountPaid.toFixed(2)}` },
+        { label: 'Payment Method', value: transaction.paymentMethod },
+        { label: 'Transaction Status', value: transaction.transactionStatus }
+      ];
+      const boxHeight = tableData.length * rowHeight + 10;
+      doc.setDrawColor(220, 220, 220);
+      doc.setFillColor(245, 245, 245);
+      doc.roundedRect(15, yPosition - 10, pageWidth - 30, boxHeight, 4, 4, 'FD');
+    
+      tableData.forEach((row, index) => {
+        const currentY = yPosition + index * rowHeight;
+        doc.setTextColor(33, 37, 41); 
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${row.label}:`, 25, currentY);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, pageWidth / 2, currentY, { align: 'center' });
+      });
+      yPosition += tableData.length * rowHeight + 20;
+      const thankYouMessage = 'Thank you for your payment!';
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bolditalic');
+      doc.setTextColor(40, 167, 69); 
+      const messageWidth = doc.getStringUnitWidth(thankYouMessage) * 14 / doc.internal.scaleFactor;
+      const messageX = (pageWidth - messageWidth) / 2;
+      doc.text(thankYouMessage, messageX, yPosition);
+      doc.setDrawColor(220, 220, 220);
+      doc.line(20, pageHeight - 30, pageWidth - 20, pageHeight - 30);
+      const footerText = 'For support, contact us at: support@company.com';
       doc.setFontSize(10);
-      doc.setTextColor(128, 128, 128);
-      const footerImg = 'assets/footer.png'; 
-      doc.addImage(footerImg, 'PNG', 10, pageHeight - 40, pageWidth - 20, 20);
+      doc.setTextColor(120, 120, 120);
+      const footerWidth = doc.getStringUnitWidth(footerText) * 10 / doc.internal.scaleFactor;
+      const footerX = (pageWidth - footerWidth) / 2;
+      doc.text(footerText, footerX, pageHeight - 20);
       doc.save(`Payment_Receipt_${transaction.invoice.id}.pdf`);
-  }
-  
+    }
+    
+    
+    
     calculatePaymentAmount() {
       this.paymentService.calculatePayment(this.invoiceId, this.discountType)
         .subscribe(
