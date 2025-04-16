@@ -39,7 +39,7 @@
               </div>
               <div class="card">
                   <p>Amount Received Today</p>
-                  <h3>₹{{ homeData.amount }}</h3>
+                  <h3>₹{{ homeData.amount | number:'1.0-0' }}</h3>
               </div>
           </div> 
       </section>
@@ -661,8 +661,8 @@
                       <td>{{ request.id }}</td>
                       <td>{{ request.userMail }}</td>
                       <td>{{ request.query }}</td>
-                      <td>{{ request.oldValue || 'N/A' }}</td>
-                      <td>{{ request.newValue || 'N/A' }}</td>
+                      <td>{{ request.oldValue || '-' }}</td>
+                      <td>{{ request.newValue || '-' }}</td>
                       <td [ngClass]="getStatusClass(request.status)">{{ request.status }}</td>
                       <td>{{ request.description}}</td>
                       <td>
