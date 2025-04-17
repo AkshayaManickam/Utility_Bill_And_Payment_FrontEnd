@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../services/auth.service'; // Import the AuthService
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +19,7 @@ export class LoginComponent {
   otpForm: FormGroup;
   isOtpGenerated = false;
   email: string = '';
+  authToken: string = ''; // Declare authToken property
 
   constructor(
     private fb: FormBuilder,
@@ -41,24 +43,24 @@ export class LoginComponent {
   
       this.authService.generateOtp(this.email).subscribe(
         (otpResponse) => {
-          if (otpResponse.message === "OTP Sent Successfully") {
+          if (otpResponse.message === "User already has an active session.") {
+            this.toastr.warning(otpResponse.message, 'Session Active');
+          } else if (otpResponse.message === "OTP Sent Successfully") {
             this.isOtpGenerated = true;
             this.otpForm.patchValue({ otp: otpResponse.otp });
-
-            this.toastr.success(`OTP has been sent! OTP: ${otpResponse.otp}`, 'Success'); 
-          } else {
-            this.toastr.error(otpResponse.message, 'Error');
+            this.toastr.success(`OTP has been sent! OTP: ${otpResponse.otp}`, 'Success');
           }
         },
         (error) => {
-          this.toastr.error('Error generating OTP. Try again!', 'Error');
+          if (error.status === 409 && error.error?.message) {
+            this.toastr.warning(error.error.message, 'Session Active');
+          } else {
+            this.toastr.error('Error generating OTP. Try again!', 'Error');
+          }
         }
       );
-    } else {
-      this.toastr.warning('Please enter a valid email.', 'Warning');
-    }
+    }  
   }
-
 
   verifyOtp() {
     if (this.otpForm.valid) {
@@ -67,8 +69,7 @@ export class LoginComponent {
         (response) => {
           if (response.valid) {
             this.toastr.success('Login successful!', 'Success');
-            console.log('OTP Response:', response);
-            localStorage.setItem('authToken', response.authToken); 
+            localStorage.setItem('authToken', 'dummy-token'); 
             localStorage.setItem('employeeId', response.employeeId);
             this.router.navigate(['/dashboard']);
           } else {
@@ -83,4 +84,5 @@ export class LoginComponent {
       this.toastr.warning('Please enter a valid 6-digit OTP.', 'Warning');
     }
   }
+  
 }
