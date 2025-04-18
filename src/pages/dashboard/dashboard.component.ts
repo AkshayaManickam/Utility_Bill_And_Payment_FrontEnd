@@ -15,6 +15,7 @@ import { Transaction, TransactionService } from '../../services/transaction.serv
 import { Router } from '@angular/router';
 import { HelpServiceService } from '../../services/help-service.service';
 import * as Papa from 'papaparse';
+import { AuthService } from '../../services/auth.service';
 
   @Component({
     selector: 'app-dashboard',
@@ -26,7 +27,7 @@ import * as Papa from 'papaparse';
   export class DashboardComponent {
     selectedRequestId: any;
 
-    constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService,private paymentService: PaymentService,private transactionService: TransactionService,private router: Router,private helpService:HelpServiceService) {}
+    constructor(private userService: UserService,private toastr: ToastrService,private employeeService: EmployeeService,private invoiceService: InvoiceService,private paymentService: PaymentService,private transactionService: TransactionService,private router: Router,private helpService:HelpServiceService,private authService: AuthService) {}
 
     ngOnInit() {
       const empId = localStorage.getItem('employeeId');
@@ -77,13 +78,26 @@ import * as Papa from 'papaparse';
     logout() {
       const confirmLogout = window.confirm('Are you sure you want to log out?');
       if (confirmLogout) {
-        console.log('User logged out');
-        localStorage.removeItem('authToken'); 
-        sessionStorage.removeItem('authToken'); 
-        this.router.navigate(['/login']);
+        this.authService.logout().subscribe({
+          next: (response) => {
+            console.log('User logged out');
+            localStorage.removeItem('employeeId');
+            localStorage.removeItem('sessionId');
+            localStorage.setItem('logout-event', Date.now().toString());
+            localStorage.clear();
+            sessionStorage.clear();
+            this.toastr.success(response.message, 'Logout');
+            this.router.navigate(['/login']);
+          },
+          error: (error) => {
+            console.error('Error during logout:', error);
+            this.toastr.error('Error during logout. Please try again.', 'Error');
+          }
+        });
       }
     }
     
+     
     users: any[] = [];
     employees: any[] = [];
     searchQuery: string = '';

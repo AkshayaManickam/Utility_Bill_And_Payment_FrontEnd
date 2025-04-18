@@ -19,13 +19,13 @@ export class LoginComponent {
   otpForm: FormGroup;
   isOtpGenerated = false;
   email: string = '';
-  authToken: string = ''; // Declare authToken property
+  authToken: string = ''; 
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private toastr: ToastrService,
-    private authService: AuthService // Inject AuthService
+    private authService: AuthService 
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -36,11 +36,35 @@ export class LoginComponent {
     });
   }
 
+  ngOnInit(): void {
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'logout-event') {
+        localStorage.clear();
+        sessionStorage.clear();
+        this.router.navigate(['/login']);
+      }
+    });
+
+    this.authService.isLoggedIn().subscribe({
+      next: (response: any) => {
+        if (response.isLoggedIn) {
+          this.router.navigate(['/dashboard']);
+        }
+      },
+      error: (err) => {
+        console.log('Not logged in or session expired');
+      }
+    });
+
+  }
+
+ 
+
   generateOtp() {
     console.log('generateOtp() function is triggered'); 
     if (this.loginForm.valid) {
       this.email = this.loginForm.value.email;
-  
       this.authService.generateOtp(this.email).subscribe(
         (otpResponse) => {
           if (otpResponse.message === "User already has an active session.") {
@@ -69,7 +93,7 @@ export class LoginComponent {
         (response) => {
           if (response.valid) {
             this.toastr.success('Login successful!', 'Success');
-            localStorage.setItem('authToken', 'dummy-token'); 
+            localStorage.setItem('sessionId', response.sessionId); // Store session ID
             localStorage.setItem('employeeId', response.employeeId);
             this.router.navigate(['/dashboard']);
           } else {

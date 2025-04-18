@@ -6,19 +6,25 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr'; // ✅ Import ToastrModule
 
 import { routes } from './app.routes';
+import { AuthInterceptor } from '../interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     importProvidersFrom(HttpClientModule),
-    importProvidersFrom(BrowserAnimationsModule), // ✅ Ensure animations are provided
+    importProvidersFrom(BrowserAnimationsModule), 
     provideAnimations(),
     importProvidersFrom(ToastrModule.forRoot({  
-      timeOut: 3000,  // ✅ Ensure toast stays visible
-      positionClass: 'toast-top-right',  // ✅ Adjust position
+      timeOut: 3000,  
+      positionClass: 'toast-top-right',  
       preventDuplicates: true,
       closeButton: true
-    }))
+    })),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ]
 };
