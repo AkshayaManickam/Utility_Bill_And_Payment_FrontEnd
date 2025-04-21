@@ -59,7 +59,6 @@ export class LoginComponent {
 
   }
 
- 
 
   generateOtp() {
     console.log('generateOtp() function is triggered'); 
